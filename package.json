@@ -12,9 +12,10 @@
 		"type": "git",
 		"url": "https://github.com/soerenmeier/chnobli.git"
 	},
-	"license": "MIT or Apache-2.0",
+	"license": "MIT",
 	"exports": {
-		"./*": "./src/*"
+		"./easing": "./src/easing/index.js",
+		".": "./src/chnobli.js"
 	},
 	"devDependencies": {
 		"eslint": "^8.45.0",
