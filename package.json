@@ -14,7 +14,7 @@
 	},
 	"license": "MIT",
 	"exports": {
-		"./easing": "./src/easing/index.js",
+		"./easing": "./src/timing/easing.js",
 		".": "./src/chnobli.js"
 	},
 	"devDependencies": {
