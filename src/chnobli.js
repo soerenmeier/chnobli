@@ -1,5 +1,8 @@
 import { takeProp } from './utils/internal.js';
 import Animation from './animation/animation.js';
+import Timeline from './timeline/timeline.js';
+
+// todo maybe add, to, from and fromTo to the animate function
 
 
 export function animate(target, props = {}) {
@@ -10,6 +13,28 @@ export function animate(target, props = {}) {
 		animation.play();
 
 	return animation;
+}
+
+export function timeline(props = {}) {
+	const autoplay = parseAutoplay(takeProp(props, 'autoplay', true));
+
+	const timeline = new Timeline(props);
+	if (autoplay)
+		timeline.play();
+
+	return timeline;
+}
+
+export function to(to) {
+	return { to };
+}
+
+export function from(from) {
+	return { from };
+}
+
+export function fromTo(from, to) {
+	return { from, to };
 }
 
 function parseAutoplay(autoplay) {

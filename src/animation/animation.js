@@ -16,6 +16,8 @@ export default class Animation {
 		this._ticker = Ticker.global();
 		this.targets = new Targets(targets, this._ticker);
 
+		this._runningTicker = null;
+
 		this._props = [];
 
 		for (const prop in props) {
@@ -38,8 +40,10 @@ export default class Animation {
 	play() {
 		// let's register into the global ticker
 		console.log('play');
+		if (this._runningTicker)
+			return;
 
-		this._ticker.add((change, opts) => {
+		this._runningTicker = this._ticker.add((change, opts) => {
 			let shouldKeepListener = false;
 
 			this._timing.advance(change);
@@ -61,8 +65,10 @@ export default class Animation {
 				prop.render(this.targets, opts.changes);
 			}
 
-			if (!shouldKeepListener)
+			if (!shouldKeepListener) {
 				opts.remove();
+				this._runningTicker = null;
+			}
 		});
 	}
 
@@ -113,7 +119,20 @@ class PropertyAnimation {
 		this.prop = newProperty(prop, animation.targets.type());
 		// we will get the from the targets
 
-		this.to = this.prop.parseValue(value);
+		this.from = null;
+		this.to = null;
+
+		if (typeof value === 'object') {
+			if ('from' in value)
+				this.from = this.prop.parseValue(value.from);
+			if ('to' in value)
+				this.to = this.prop.parseValue(value.to);
+
+			if (!this.from && !this.to)
+				throw new Error('from or to expected');
+		} else {
+			this.to = this.prop.parseValue(value);
+		}
 
 		// either the timing is custom which then only exists in this property
 		// or it is shared between the animation
@@ -124,12 +143,17 @@ class PropertyAnimation {
 
 		const pos = this._timing.position;
 
-		const from = targets.getStartValue(this.prop);
+		let from = this.from;
+		if (!from)
+			from = targets.getStartValue(this.prop);
+		let to = this.to;
+		if (!to)
+			to = targets.getStartValue(this.prop);
 
-		if (this.to.unit !== from.unit)
-			throw new Error(from.unit + ' != ' + this.to.unit);
+		if (to.unit !== from.unit)
+			throw new Error(from.unit + ' != ' + to.unit);
 
-		const dif = this.to.num - from.num;
+		const dif = to.num - from.num;
 
 
 		targets.setValue(this.prop, from.cloneAdd(pos * dif));

@@ -29,7 +29,7 @@ export default class Property {
 	}
 }
 
-const TRANSFORM_PROPS = ['x', 'y', 'scale', 'scaleX', 'scaleY'];
+const TRANSFORM_PROPS = ['x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate'];
 
 export class Transform extends Property {
 	constructor(name) {
@@ -45,6 +45,10 @@ export class Transform extends Property {
 		} else if (name.startsWith('scale')) {
 			this._defUnit = null;
 			this._defVal = 1;
+			this._transformFunction = name;
+		} else if (name === 'rotate') {
+			this._defUnit = 'deg';
+			this._defVal = 0;
 			this._transformFunction = name;
 		} else {
 			throw new Error('unknown prop ' + name);
