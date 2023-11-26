@@ -235,8 +235,6 @@ class PropertyAnimation {
 		if (!this.to)
 			this.to = targets.getValue(this.prop);
 
-		console.log(this.prop.name, this.from, this.to);
-
 		if (this.to.unit !== this.from.unit)
 			throw new Error(this.from.unit + ' != ' + this.to.unit);
 	}

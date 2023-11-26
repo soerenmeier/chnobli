@@ -73,6 +73,15 @@ export default class Timing {
 		}
 	}
 
+	reverse() {
+		this.reversed = !this.reversed;
+
+		let p = Math.floor(this._progress);
+		p = p + (1 - (this._progress - p));
+
+		this._updateProgress(p);
+	}
+
 	_updateProgress(newProgress) {
 		this._progress = newProgress;
 

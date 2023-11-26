@@ -1,29 +1,53 @@
 import { takeProp } from './utils/internal.js';
 import Animation from './animation/animation.js';
 import Timeline from './timeline/timeline.js';
-import { STATE_AFTER } from './timing/timing.js';
+import { parseDelay, STATE_AFTER } from './timing/timing.js';
 
 // todo maybe add, to, from and fromTo to the animate function
 
 
 export function animate(target, props = {}) {
 	const autoplay = parseAutoplay(takeProp(props, 'autoplay', true));
+	const delay = parseDelay(takeProp(props, 'delay', 0));
 
-	const animation = new Animation(target, props);
+	const tl = timeline(props)
+		.add(target, props, delay);
+
 	if (autoplay)
-		animation.play();
+		tl.play();
 
-	return animation;
+	return {
+		play() {
+			tl.play();
+		},
+		pause() {
+			tl.pause();
+		},
+		// 0-1
+		seek(pos) {
+			tl.seek(pos);
+		},
+		reset() {
+			tl.reset();
+		},
+		reverse() {
+			tl.reverse();
+		}
+	};
 }
 
 export function timeline(props = {}) {
+	const defaults = takeProp(props, 'defaults', {});
 	const timeline = new Timeline(props);
 
 	let runningTicker = null;
 
 	return {
 		add(targets, props, offset = null) {
-			timeline.add(targets, props, offset);
+			timeline.add(targets, {
+				...defaults,
+				...props
+			}, offset);
 
 			return this;
 		},
@@ -38,18 +62,6 @@ export function timeline(props = {}) {
 
 			timeline.init();
 
-			// console.log('0.1');
-			// timeline.seek(0.1);
-			// timeline.render();
-
-			// console.log('0.2');
-			// timeline.seek(0.2);
-			// timeline.render();
-
-			// console.log('0.3');
-			// timeline.seek(0.3);
-			// timeline.render();
-
 			runningTicker = timeline.ticker.add((change, opts) => {
 				if (timeline.timing.state === STATE_AFTER)
 					opts.remove();
@@ -58,6 +70,25 @@ export function timeline(props = {}) {
 
 				timeline.render();
 			});
+
+			return this;
+		},
+		pause() {
+			if (!runningTicker)
+				return;
+
+			runningTicker.remove();
+			runningTicker = null;
+		},
+		// 0-1
+		seek(pos) {
+			timeline.seek(pos);
+		},
+		reset() {
+			timeline.seek(0);
+		},
+		reverse() {
+			timeline.timing.reverse();
 		}
 	};
 }

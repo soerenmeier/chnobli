@@ -146,16 +146,12 @@ export default class Timeline {
 			entry.value.init();
 		}
 
-		// this.
-
 		this.timing.seek(0);
 		this.timing.reversed = reversed;
 		startOrdered.forEach(e => {
 			e.value.seek(-1);
 			e.value.render();
 		});
-
-		console.log('init done');
 	}
 
 	render() {
@@ -175,22 +171,6 @@ export default class Timeline {
 		for (const animation of this._renderQueue.active) {
 			animation.render();
 		}
-
-
-		// // render inactive
-		// for (const animation of this._inactiveRender) {
-		// 	console.log('inactive render');
-		// 	animation.render();
-		// 	console.log('inactive rendered', animation.timing.state);
-		// }
-
-		// for (const entry of this.entries) {
-		// 	if (entry.type !== 'animation')
-		// 		continue;
-
-		// 	if (entry.render)
-		// 		entry.value.render();
-		// }
 	}
 
 	_updateTimings() {
@@ -201,7 +181,6 @@ export default class Timeline {
 		};
 
 		const pos = this.timing.position * this.timing.iterDuration;
-		console.log('tlPos', pos);
 
 		for (const entry of this.entries) {
 			if (entry.type !== 'animation')
@@ -215,12 +194,6 @@ export default class Timeline {
 
 			animation.seek(p);
 
-			// const shouldRender = animation.timing.state === STATE_RUNNING ||
-			// 	prevState !== animation.timing.state;
-
-			// if (!shouldRender)
-			// 	continue;
-
 			if (p > 1) {
 				this._renderQueue.passed.push(animation);
 			} else if (p < 0) {
@@ -228,19 +201,6 @@ export default class Timeline {
 			} else {
 				this._renderQueue.active.push(animation);
 			}
-
-			// const active = p >= 0 && p <= 1;
-
-			// // todo optimize this
-			// const prevState = animation.timing.state;
-			
-			// const stateChanged = animation.timing.state !== prevState;
-
-			// // last Render
-			// if (!active && (entry.render || stateChanged))
-			// 	this._inactiveRender.push(animation);
-
-			// entry.render = active;
 		}
 	}
 }

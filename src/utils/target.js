@@ -37,8 +37,6 @@ export class DomTarget extends Target {
 	}
 
 	getValue(prop) {
-		console.log('getvalue', prop.name, this.currentValues);
-
 		let val = this.currentValues.get(prop.name);
 		if (val)
 			return val.value;
@@ -49,15 +47,11 @@ export class DomTarget extends Target {
 	}
 
 	setValue(prop, value) {
-		console.log('setValue', prop.name, value);
-		// if (prop.name === 'y')
-		// 	debugger;
 		// todo maybe register the props separately
 		this.currentValues.set(prop.name, { prop, value });
 	}
 
 	removeValue(prop) {
-		console.log('removeValue', prop.name);
 		this.currentValues.delete(prop.name);
 	}
 
