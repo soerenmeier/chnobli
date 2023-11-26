@@ -15,7 +15,7 @@ export default class Property {
 	}
 
 	// try to access the value from the target
-	getCurrentValue(target) {
+	getValue(target) {
 		return this.defaultValue();
 	}
 
@@ -85,7 +85,7 @@ export class StyleProp extends Property {
 		return new Value(0, 'px');
 	}
 
-	getCurrentValue(target) {
+	getValue(target) {
 		if (target.type() !== 'dom')
 			throw new Error('error not dom');
 

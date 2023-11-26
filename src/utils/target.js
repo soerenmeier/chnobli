@@ -10,7 +10,7 @@ export default class Target {
 		return 'unknown';
 	}
 
-	getStartValue(prop) {
+	getValue(prop) {
 		throw new Error('cannot get start value of ' + prop.name);
 	}
 
@@ -27,7 +27,8 @@ export class DomTarget extends Target {
 
 		// for the moment 
 
-		this.startValues = new Map;
+		// this.startValues = new Map;
+		// { prop, value }
 		this.currentValues = new Map;
 	}
 
@@ -35,19 +36,29 @@ export class DomTarget extends Target {
 		return 'dom';
 	}
 
-	getStartValue(prop) {
-		let startVal = this.startValues.get(prop.name);
-		if (startVal)
-			return startVal;
+	getValue(prop) {
+		console.log('getvalue', prop.name, this.currentValues);
 
-		startVal = prop.getCurrentValue(this);
-		this.startValues.set(prop.name, startVal);
-		return startVal;
+		let val = this.currentValues.get(prop.name);
+		if (val)
+			return val.value;
+
+		val = prop.getValue(this);
+		this.currentValues.set(prop.name, { prop, value: val });
+		return val;
 	}
 
 	setValue(prop, value) {
+		console.log('setValue', prop.name, value);
+		// if (prop.name === 'y')
+		// 	debugger;
 		// todo maybe register the props separately
 		this.currentValues.set(prop.name, { prop, value });
+	}
+
+	removeValue(prop) {
+		console.log('removeValue', prop.name);
+		this.currentValues.delete(prop.name);
 	}
 
 	apply() {

@@ -1,6 +1,7 @@
 import { takeProp } from '../utils/internal.js';
 import Timing, {
-	parseEase, parseRepeat, parseAlternate, parseReversed
+	parseEase, parseRepeat, parseAlternate, parseReversed,
+	STATE_RUNNING
 } from '../timing/timing.js';
 import Ticker from '../timing/ticker.js';
 import Animation from '../animation/animation.js';
@@ -27,9 +28,11 @@ export default class Timeline {
 
 		// { type: label|animation, value: {}, offset, start: x, end: y, render }
 		this.entries = [];
+		// this.animationsStartOrder = [];
+		// this.animationsEndOrder = [];
 
 		this._initialized = false;
-		this._inactiveRender = [];
+		this._renderQueue = null;
 	}
 
 	add(targets, props, offset = null) {
@@ -107,27 +110,98 @@ export default class Timeline {
 		}
 
 		this.timing.setDuration(pos);
+
+		this._initAnimations();
+
+		// console.log(this.entries.map(e => e.value._props[0]));
+	}
+
+	_initAnimations() {
+		// we don't won't to have a reversed timing
+		const reversed = this.timing.reversed;
+		this.timing.reversed = false;
+
+		// now initialize all animtaions
+		const startOrdered = this.entries.filter(e => e.type === 'animation');
+		startOrdered.sort((a, b) => a.start - b.start);
+
+		for (let i = 0; i < startOrdered.length; i++) {
+			const entry = startOrdered[i];
+
+			this.timing.seek(entry.start / this.timing.iterDuration);
+
+			const pos = this.timing.position * this.timing.iterDuration;
+
+			// seek all previous and render
+			for (let y = 0; y < i; y++) {
+				const prevEntry = startOrdered[y];
+				const prevAnimation = prevEntry.value;
+
+				const p = (pos - prevEntry.start) / prevAnimation.duration;
+
+				prevAnimation.seek(p);
+				prevAnimation.render();
+			}
+
+			entry.value.init();
+		}
+
+		// this.
+
+		this.timing.seek(0);
+		this.timing.reversed = reversed;
+		startOrdered.forEach(e => {
+			e.value.seek(-1);
+			e.value.render();
+		});
+
+		console.log('init done');
 	}
 
 	render() {
-		// render inactive
-		for (const animation of this._inactiveRender) {
+		// the rendering order needs to be as follows
+		// upcoming
+		// passed
+		// active
+
+		for (const animation of this._renderQueue.upcoming) {
 			animation.render();
 		}
 
-		for (const entry of this.entries) {
-			if (entry.type !== 'animation')
-				continue;
-
-			if (entry.render)
-				entry.value.render();
+		for (const animation of this._renderQueue.passed) {
+			animation.render();
 		}
+
+		for (const animation of this._renderQueue.active) {
+			animation.render();
+		}
+
+
+		// // render inactive
+		// for (const animation of this._inactiveRender) {
+		// 	console.log('inactive render');
+		// 	animation.render();
+		// 	console.log('inactive rendered', animation.timing.state);
+		// }
+
+		// for (const entry of this.entries) {
+		// 	if (entry.type !== 'animation')
+		// 		continue;
+
+		// 	if (entry.render)
+		// 		entry.value.render();
+		// }
 	}
 
 	_updateTimings() {
-		this._inactiveRender = [];
+		this._renderQueue = {
+			upcoming: [],
+			passed: [],
+			active: []
+		};
 
 		const pos = this.timing.position * this.timing.iterDuration;
+		console.log('tlPos', pos);
 
 		for (const entry of this.entries) {
 			if (entry.type !== 'animation')
@@ -137,17 +211,36 @@ export default class Timeline {
 
 			const p = (pos - entry.start) / animation.duration;
 
-			const active = p >= 0 && p <= 1;
+			const prevState = animation.timing.state;
 
-			// last Render
-			if (!active && entry.render) {
-				animation.seek(Math.min(Math.max(p, 0), 1));
-				this._inactiveRender.push(animation);
-			} else if (active) {
-				animation.seek(Math.min(Math.max(p, 0), 1));
+			animation.seek(p);
+
+			// const shouldRender = animation.timing.state === STATE_RUNNING ||
+			// 	prevState !== animation.timing.state;
+
+			// if (!shouldRender)
+			// 	continue;
+
+			if (p > 1) {
+				this._renderQueue.passed.push(animation);
+			} else if (p < 0) {
+				this._renderQueue.upcoming.push(animation);
+			} else {
+				this._renderQueue.active.push(animation);
 			}
 
-			entry.render = active;
+			// const active = p >= 0 && p <= 1;
+
+			// // todo optimize this
+			// const prevState = animation.timing.state;
+			
+			// const stateChanged = animation.timing.state !== prevState;
+
+			// // last Render
+			// if (!active && (entry.render || stateChanged))
+			// 	this._inactiveRender.push(animation);
+
+			// entry.render = active;
 		}
 	}
 }

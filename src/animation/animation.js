@@ -1,7 +1,9 @@
 import { takeProp } from '../utils/internal.js';
 import Value from '../utils/value.js';
 // import Ease from '../easing/ease.js';
-import Timing, { newTiming } from '../timing/timing.js';
+import Timing, {
+	newTiming, STATE_BEFORE, STATE_AFTER
+} from '../timing/timing.js';
 
 import { newProperty } from './property.js';
 
@@ -18,7 +20,9 @@ export default class Animation {
 		this._ticker = ticker;
 		this.targets = new Targets(targets, this._ticker);
 
+		this._prevTimingState = this.timing.state;
 		this._props = [];
+		this._initialized = false;
 
 		for (const prop in props) {
 			if (prop in this)
@@ -73,10 +77,12 @@ export default class Animation {
 	// }
 
 	advance(change) {
+		this._prevTimingState = this.timing.state;
 		this.timing.advance(change);
 	}
 
 	seek(pos) {
+		this._prevTimingState = this.timing.state;
 		this.timing.seek(pos);
 	}
 
@@ -88,7 +94,47 @@ export default class Animation {
 		return this.timing.duration;
 	}
 
+	init() {
+		if (this._initialized)
+			return;
+		this._initialized = true;
+
+		for (const prop of this._props) {
+			prop.init(this.targets);
+		}
+	}
+
+	// renderBefore() {
+
+	// }
+
 	render() {
+		if (this.timing.state === STATE_BEFORE) {
+			// console.log('render before');
+
+			for (const prop of this._props) {
+				prop.restoreBefore(this.targets);
+			}
+
+			// to render before we need to remove 
+
+			return;
+		} else if (this.timing.state === STATE_AFTER) {
+			// console.log('render after');
+			// return;
+		}
+
+		// if (
+		// 	this._prevTimingState === STATE_START
+		// 	// this.timing.state > STATE_START
+		// ) {
+		// 	console.log('start animation');
+		// 	// we need to start the animation
+		// 	for (const prop of this._props) {
+		// 		prop.start(this.targets);
+		// 	}
+		// }
+
 		// let shouldKeepListener = false;
 
 		// this._timing.advance(change);
@@ -117,15 +163,6 @@ export default class Animation {
 		// 	this._runningTicker = null;
 		// }
 	}
-
-	// t = 0-1
-	// seek(t) {}
-
-	// pause() {}
-
-	// reset() {
-	// 	this.seek(0);
-	// }
 }
 
 class Targets {
@@ -151,8 +188,8 @@ class Targets {
 	}
 
 	// get the start value
-	getStartValue(prop) {
-		return this.target.getStartValue(prop);
+	getValue(prop) {
+		return this.target.getValue(prop);
 	}
 
 	setValue(prop, value) {
@@ -165,19 +202,22 @@ class PropertyAnimation {
 		this.prop = newProperty(prop, animation.targets.type());
 		// we will get the from the targets
 
+		this.iniFrom = null;
+		this.iniTo = null;
+
 		this.from = null;
 		this.to = null;
 
 		if (typeof value === 'object') {
 			if ('from' in value)
-				this.from = this.prop.parseValue(value.from);
+				this.iniFrom = this.prop.parseValue(value.from);
 			if ('to' in value)
-				this.to = this.prop.parseValue(value.to);
+				this.iniTo = this.prop.parseValue(value.to);
 
-			if (!this.from && !this.to)
+			if (!this.iniFrom && !this.iniTo)
 				throw new Error('from or to expected');
 		} else {
-			this.to = this.prop.parseValue(value);
+			this.iniTo = this.prop.parseValue(value);
 		}
 
 		// // either the timing is custom which then only exists in this property
@@ -185,23 +225,30 @@ class PropertyAnimation {
 		// this._timing = animation._timing;
 	}
 
+	// calculate from and to position
+	init(targets) {
+		this.from = this.iniFrom;
+		if (!this.from)
+			this.from = targets.getValue(this.prop);
+
+		this.to = this.iniTo;
+		if (!this.to)
+			this.to = targets.getValue(this.prop);
+
+		console.log(this.prop.name, this.from, this.to);
+
+		if (this.to.unit !== this.from.unit)
+			throw new Error(this.from.unit + ' != ' + this.to.unit);
+	}
+
+	restoreBefore(targets) {
+		targets.target.removeValue(this.prop);
+	}
+
 	render(pos, targets) {
-		// const pos = this._timing.position;
+		const dif = this.to.num - this.from.num;
 
-		let from = this.from;
-		if (!from)
-			from = targets.getStartValue(this.prop);
-		let to = this.to;
-		if (!to)
-			to = targets.getStartValue(this.prop);
-
-		if (to.unit !== from.unit)
-			throw new Error(from.unit + ' != ' + to.unit);
-
-		const dif = to.num - from.num;
-
-
-		targets.setValue(this.prop, from.cloneAdd(pos * dif));
+		targets.setValue(this.prop, this.from.cloneAdd(pos * dif));
 	}
 }
 

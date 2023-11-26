@@ -1,6 +1,7 @@
 import { takeProp } from './utils/internal.js';
 import Animation from './animation/animation.js';
 import Timeline from './timeline/timeline.js';
+import { STATE_AFTER } from './timing/timing.js';
 
 // todo maybe add, to, from and fromTo to the animate function
 
@@ -37,7 +38,22 @@ export function timeline(props = {}) {
 
 			timeline.init();
 
+			// console.log('0.1');
+			// timeline.seek(0.1);
+			// timeline.render();
+
+			// console.log('0.2');
+			// timeline.seek(0.2);
+			// timeline.render();
+
+			// console.log('0.3');
+			// timeline.seek(0.3);
+			// timeline.render();
+
 			runningTicker = timeline.ticker.add((change, opts) => {
+				if (timeline.timing.state === STATE_AFTER)
+					opts.remove();
+
 				timeline.advance(change);
 
 				timeline.render();

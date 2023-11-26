@@ -1,7 +1,11 @@
 import Ease from './ease.js';
 import { takeProp } from '../utils/internal.js';
 
-// does timing need repeat here? or should that be in another class?
+export const STATE_BEFORE = 0;
+export const STATE_START = 1;
+export const STATE_RUNNING = 2;
+export const STATE_ENDED = 3;
+export const STATE_AFTER = 4;
 
 export default class Timing {
 	// removes the relevant properties from the props
@@ -29,7 +33,7 @@ export default class Timing {
 		this.reversed = props.reversed ?? false;
 
 		this.position = 0;
-		this.ended = false;
+		this.state = STATE_BEFORE;
 
 		// progress does not take alternation into account and has no easing
 		// this always increments up until it overflows
@@ -53,13 +57,13 @@ export default class Timing {
 	}
 
 	advance(change) {
-		if (this.ended)
+		if (this.state >= STATE_AFTER)
 			return;
 
 		this._updateProgress(this._progress + change / this.iterDuration);
 	}
 
-	// needs to be between 0 and 1
+	// should be between 0-1 if outside might change the state
 	seek(pos) {
 		if (this.repeat <= 0) {
 			this._updateProgress(pos);
@@ -70,47 +74,39 @@ export default class Timing {
 	}
 
 	_updateProgress(newProgress) {
-		// console.log('newProgress', newProgress);
-
-		// const prevIter = Math.floor(this._progress);
 		this._progress = newProgress;
-		const iter = Math.floor(this._progress);
+
+		// since infite repeat can never end let's ignore it
+		if (this.repeat > -1) {
+			const end = this.repeat + 1;
+			if (this._progress > end) {
+				this._progress = end;
+				this.state = STATE_AFTER;
+			} else if (this._progress === end) {
+				this.state = STATE_ENDED;
+			} else {
+				this.state = STATE_RUNNING;
+			}
+		} else {
+			this.state = STATE_RUNNING;
+		}
+
+		// override state if not running
+		if (this._progress < 0) {
+			this._progress = 0;
+			this.state = STATE_BEFORE;
+		} else if (this._progress === 0) {
+			this.state = STATE_START;
+		}
+
 
 		let reversed = this.reversed;
 
-		if (this.repeat === 0 && this._progress > 1) {
-			// let's stop it
-			this._progress = 1;
-			this.ended = true;
-		} else if (this.repeat > 0 && this.repeat < iter) {
-			// repetition ends
-			this._progress = iter;
-			this.ended = true;
-		} else {
-			this.ended = false;
-
-			// const iterChange = Math.floor(this._progress) - prevIter;
-			// if (iterChange === 1)
-			// 	debugger;
-
-			// if (this._progress > 1) {
-			// 	debugger
-			// }
-
-			// calc if we are in a reversed iteration or not
-			if (this.alternate) {
-				// debugger;
-				let shouldInverse = Math.floor(this._progress) % 2 === 1;
-				if (shouldInverse)
-					reversed = !reversed;
-			}
-
-			// alternate
-			// if (iterChange > 0 && this.alternate) {
-			// 	let shouldInverse = iterChange % 2 === 1;
-			// 	if (shouldInverse)
-			// 		this.reversed = !this.reversed;
-			// }
+		// calc if we are in a reversed iteration or not
+		if (this.alternate) {
+			let shouldInverse = Math.floor(this._progress) % 2 === 1;
+			if (shouldInverse)
+				reversed = !reversed;
 		}
 
 		// now calculate the position
@@ -121,7 +117,6 @@ export default class Timing {
 			this.position = 1 - this.position;
 
 		this.position = this.ease(this.position);
-		// debugger
 	}
 }
 
