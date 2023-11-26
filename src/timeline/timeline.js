@@ -29,6 +29,7 @@ export default class Timeline {
 		this.entries = [];
 
 		this._initialized = false;
+		this._inactiveRender = [];
 	}
 
 	add(targets, props, offset = null) {
@@ -109,6 +110,11 @@ export default class Timeline {
 	}
 
 	render() {
+		// render inactive
+		for (const animation of this._inactiveRender) {
+			animation.render();
+		}
+
 		for (const entry of this.entries) {
 			if (entry.type !== 'animation')
 				continue;
@@ -119,6 +125,8 @@ export default class Timeline {
 	}
 
 	_updateTimings() {
+		this._inactiveRender = [];
+
 		const pos = this.timing.position * this.timing.iterDuration;
 
 		for (const entry of this.entries) {
@@ -129,33 +137,17 @@ export default class Timeline {
 
 			const p = (pos - entry.start) / animation.duration;
 
-
-			// if (entry.active)
-
 			const active = p >= 0 && p <= 1;
 
-			if (!active && entry.render && !entry.lastRender) {
-				entry.render = true;
-				entry.lastRender = true;
+			// last Render
+			if (!active && entry.render) {
+				animation.seek(Math.min(Math.max(p, 0), 1));
+				this._inactiveRender.push(animation);
 			} else if (active) {
-				entry.render = true;
-				entry.lastRender = false;
-			} else {
-				entry.render = false;
+				animation.seek(Math.min(Math.max(p, 0), 1));
 			}
 
-			// entry.render = active;
-
-			// const renderChange = entry.render !== active;
-			// if (renderChange)
-			// 	entry.render = true;
-			// else
-			// 	entry.render = active;
-
-			// entry.render = true;
-			// entry.render = p >= 0 && p <= 1;
-
-			animation.seek(Math.min(Math.max(p, 0), 1));
+			entry.render = active;
 		}
 	}
 }
