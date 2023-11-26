@@ -1,5 +1,6 @@
-const VALID_TWO_UNITS = ['px', 'vw', 'vh', 'rem', 'em'];
-const VALID_THREE_UNITS = ['rem'];
+const UNITS = ['px', 'vw', 'vh', 'rem', 'em', 'rem', 'deg', 'rad'];
+
+const REGEX = /^(\d*\.?\d*)(\w*)$/;
 
 export default class Value {
 	constructor(num, unit = null) {
@@ -12,22 +13,12 @@ export default class Value {
 			return new Value(v, defUnit);
 		}
 
-		if (v.length < 2)
-			throw new Error('value needs to be at least two chars long');
+		const [_v, num, unit] = REGEX.exec(v);
 
-		const lastOne = v.substring(v.length - 1);
-		if (lastOne === '%')
-			return new Value(parseInt(v), lastOne);
+		if (unit && !UNITS.includes(unit))
+			throw new Error('unknown unit ' + unit);
 
-		const lastTwo = v.substring(v.length - 2);
-		if (VALID_TWO_UNITS.includes(lastTwo))
-			return new Value(parseInt(v), lastTwo);
-
-		const lastThree = v.substring(v.length - 3);
-		if (lastThree === 'rem')
-			return new Value(parseInt(v), lastThree);
-
-		throw new Error('unknown value: ' + v);
+		return new Value(parseFloat(num), unit ? unit : null);
 	}
 
 	clone(newNum = null) {

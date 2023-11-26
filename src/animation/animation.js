@@ -15,10 +15,10 @@ export default class Animation {
 	/*
 	props
 	*/
-	constructor(targets, ticker, props = {}) {
+	constructor(target, ticker, props = {}) {
 		this.timing = newTiming(props);
 		this._ticker = ticker;
-		this.targets = new Targets(targets, this._ticker);
+		this.target = ticker._targets.register(target);
 
 		this._prevTimingState = this.timing.state;
 		this._props = [];
@@ -35,46 +35,7 @@ export default class Animation {
 			);
 			this._props.push(this[prop]);
 		}
-
-
-		// transform
-		// we need to setup our "world"
 	}
-
-	// play() {
-		// // let's register into the global ticker
-		// console.log('play');
-		// if (this._runningTicker)
-		// 	return;
-
-		// this._runningTicker = this._ticker.add((change, opts) => {
-		// 	let shouldKeepListener = false;
-
-		// 	this._timing.advance(change);
-		// 	if (!this._timing.ended)
-		// 		shouldKeepListener = true;
-
-		// 	// loop through all props and check if they have the same timing
-		// 	for (const prop of this._props) {
-		// 		if (prop._timing === this._timing)
-		// 			continue;
-
-		// 		prop._timing.advance(change);
-		// 		if (!prop._timing.ended)
-		// 			shouldKeepListener = true;
-		// 	}
-
-		// 	// now render
-		// 	for (const prop of this._props) {
-		// 		prop.render(this.targets, opts.changes);
-		// 	}
-
-		// 	if (!shouldKeepListener) {
-		// 		opts.remove();
-		// 		this._runningTicker = null;
-		// 	}
-		// });
-	// }
 
 	advance(change) {
 		this._prevTimingState = this.timing.state;
@@ -100,20 +61,16 @@ export default class Animation {
 		this._initialized = true;
 
 		for (const prop of this._props) {
-			prop.init(this.targets);
+			prop.init(this.target);
 		}
 	}
-
-	// renderBefore() {
-
-	// }
 
 	render() {
 		if (this.timing.state === STATE_BEFORE) {
 			// console.log('render before');
 
 			for (const prop of this._props) {
-				prop.restoreBefore(this.targets);
+				prop.restoreBefore(this.target);
 			}
 
 			// to render before we need to remove 
@@ -124,82 +81,18 @@ export default class Animation {
 			// return;
 		}
 
-		// if (
-		// 	this._prevTimingState === STATE_START
-		// 	// this.timing.state > STATE_START
-		// ) {
-		// 	console.log('start animation');
-		// 	// we need to start the animation
-		// 	for (const prop of this._props) {
-		// 		prop.start(this.targets);
-		// 	}
-		// }
-
-		// let shouldKeepListener = false;
-
-		// this._timing.advance(change);
-		// if (!this._timing.ended)
-		// 	shouldKeepListener = true;
-
-		// // loop through all props and check if they have the same timing
-		// for (const prop of this._props) {
-		// 	if (prop._timing === this._timing)
-		// 		continue;
-
-		// 	prop._timing.advance(change);
-		// 	if (!prop._timing.ended)
-		// 		shouldKeepListener = true;
-		// }
-
 		const pos = this.timing.position;
 
 		// now render
 		for (const prop of this._props) {
-			prop.render(pos, this.targets);
+			prop.render(pos, this.target);
 		}
-
-		// if (!shouldKeepListener) {
-		// 	opts.remove();
-		// 	this._runningTicker = null;
-		// }
-	}
-}
-
-class Targets {
-	constructor(targets, ticker) {
-		if (Array.from(targets).length > 0)
-			throw new Error('only one target supported');
-
-		// this.target = targets;
-
-		this._globalTargets = ticker._targets;
-
-		this.target = this._globalTargets.register(targets);
-
-		// somewhere global probably in the ticker
-		// we need to store the property changes for each target
-		// which will then be applied
-		// this allows to merge transform stuff for example
-		// optimize to only call the dom if necessary
-	}
-
-	type() {
-		return this.target.type();
-	}
-
-	// get the start value
-	getValue(prop) {
-		return this.target.getValue(prop);
-	}
-
-	setValue(prop, value) {
-		return this.target.setValue(prop, value);
 	}
 }
 
 class PropertyAnimation {
 	constructor(prop, value, animation) {
-		this.prop = newProperty(prop, animation.targets.type());
+		this.prop = newProperty(prop, animation.target.type());
 		// we will get the from the targets
 
 		this.iniFrom = null;
@@ -219,34 +112,30 @@ class PropertyAnimation {
 		} else {
 			this.iniTo = this.prop.parseValue(value);
 		}
-
-		// // either the timing is custom which then only exists in this property
-		// // or it is shared between the animation
-		// this._timing = animation._timing;
 	}
 
 	// calculate from and to position
-	init(targets) {
+	init(target) {
 		this.from = this.iniFrom;
 		if (!this.from)
-			this.from = targets.getValue(this.prop);
+			this.from = target.getValue(this.prop);
 
 		this.to = this.iniTo;
 		if (!this.to)
-			this.to = targets.getValue(this.prop);
+			this.to = target.getValue(this.prop);
 
 		if (this.to.unit !== this.from.unit)
 			throw new Error(this.from.unit + ' != ' + this.to.unit);
 	}
 
-	restoreBefore(targets) {
-		targets.target.removeValue(this.prop);
+	restoreBefore(target) {
+		target.removeValue(this.prop);
 	}
 
-	render(pos, targets) {
+	render(pos, target) {
 		const dif = this.to.num - this.from.num;
 
-		targets.setValue(this.prop, this.from.cloneAdd(pos * dif));
+		target.setValue(this.prop, this.from.cloneAdd(pos * dif));
 	}
 }
 

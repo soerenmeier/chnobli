@@ -68,21 +68,31 @@ export class Transform extends Property {
 	}
 }
 
-const STYLE_PROPS = ['width', 'height', 'top', 'left', 'right', 'bottom'];
+const STYLE_PROPS = {
+	'width': 'px',
+	'height': 'px',
+	'top': 'px',
+	'left': 'px',
+	'right': 'px',
+	'bottom': 'px',
+	'opacity': null,
+}
 
 export class StyleProp extends Property {
-	// constructor(name) {
-	// 	super(name);
-	// }
+	constructor(name) {
+		super(name);
+
+		this.unit = STYLE_PROPS[name];
+	}
 
 	parseValue(val) {
 		// maybe keep it unitless as long as possible, maybe until we need to
 		// write it
-		return Value.parse(val, 'px');
+		return Value.parse(val, this.unit);
 	}
 
 	defaultValue() {
-		return new Value(0, 'px');
+		return new Value(0, this.unit);
 	}
 
 	getValue(target) {
@@ -105,7 +115,7 @@ export function newProperty(prop, targetType = '') {
 
 	if (TRANSFORM_PROPS.includes(prop))
 		return new Transform(prop);
-	if (STYLE_PROPS.includes(prop))
+	if (prop in STYLE_PROPS)
 		return new StyleProp(prop);
 
 	throw new Error('unknown prop ' + prop);

@@ -15,6 +15,7 @@
 	"license": "MIT",
 	"exports": {
 		"./easing": "./src/timing/easing.js",
+		"./utils": "./src/utils/utils.js",
 		".": "./src/chnobli.js"
 	},
 	"devDependencies": {

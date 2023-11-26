@@ -35,7 +35,9 @@ export default class Timeline {
 		this._renderQueue = null;
 	}
 
-	add(targets, props, offset = null) {
+	// relative represents the point which the offset should be taken
+	// if relative 1 is done the offset will be taken from the previous - 1
+	add(targets, props, offset = null, relative = 0) {
 		const animation = new Animation(targets, this.ticker, props);
 
 		if (!animation.isFinite())
@@ -44,7 +46,8 @@ export default class Timeline {
 		this.entries.push({
 			type: 'animation',
 			value: animation,
-			offset: new Offset(offset)
+			offset: new Offset(offset),
+			relativeOffset: relative
 		});
 
 		return this;
@@ -54,7 +57,8 @@ export default class Timeline {
 		this.entries.push({
 			type: 'label',
 			value: label,
-			offset: new Offset(offset)
+			offset: new Offset(offset),
+			relativeOffset: 0
 		});
 
 		return this;
@@ -77,12 +81,13 @@ export default class Timeline {
 			return;
 		this._initialized = true;
 
-		let pos = 0;
-		// let duration = 0;
+		let duration = 0;
 
 		const labels = {};
 
+		let i = -1;
 		for (const entry of this.entries) {
+			i++;
 			let offset = entry.offset;
 
 			if (offset.type === 'label') {
@@ -91,6 +96,9 @@ export default class Timeline {
 
 				offset = new Offset(labels[offset.value]);
 			}
+
+
+			const pos = this.entries[i - 1 - entry.relative]?.end ?? 0;
 
 			let start = offset.calculate(pos);
 			if (start < 0)
@@ -104,12 +112,12 @@ export default class Timeline {
 				labels[entry.value] = start;
 
 			entry.start = start;
-			// entry.end = end;
+			entry.end = end;
 
-			pos = Math.max(end, pos);
+			duration = Math.max(end, duration);
 		}
 
-		this.timing.setDuration(pos);
+		this.timing.setDuration(duration);
 
 		this._initAnimations();
 
