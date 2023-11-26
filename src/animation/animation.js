@@ -1,8 +1,8 @@
 import { takeProp } from '../utils/internal.js';
 import Value from '../utils/value.js';
 // import Ease from '../easing/ease.js';
-import Timing from '../timing/timing.js';
-import Ticker from '../timing/ticker.js';
+import Timing, { newTiming } from '../timing/timing.js';
+
 import { newProperty } from './property.js';
 
 
@@ -10,13 +10,13 @@ export default class Animation {
 	// targets;
 	// #timing;
 
-	constructor(targets, props = {}) {
-		this._timing = new Timing(props);
-		// todo allow to set a custom ticker
-		this._ticker = Ticker.global();
+	/*
+	props
+	*/
+	constructor(targets, ticker, props = {}) {
+		this.timing = newTiming(props);
+		this._ticker = ticker;
 		this.targets = new Targets(targets, this._ticker);
-
-		this._runningTicker = null;
 
 		this._props = [];
 
@@ -37,49 +37,95 @@ export default class Animation {
 		// we need to setup our "world"
 	}
 
-	play() {
-		// let's register into the global ticker
-		console.log('play');
-		if (this._runningTicker)
-			return;
+	// play() {
+		// // let's register into the global ticker
+		// console.log('play');
+		// if (this._runningTicker)
+		// 	return;
 
-		this._runningTicker = this._ticker.add((change, opts) => {
-			let shouldKeepListener = false;
+		// this._runningTicker = this._ticker.add((change, opts) => {
+		// 	let shouldKeepListener = false;
 
-			this._timing.advance(change);
-			if (!this._timing.ended)
-				shouldKeepListener = true;
+		// 	this._timing.advance(change);
+		// 	if (!this._timing.ended)
+		// 		shouldKeepListener = true;
 
-			// loop through all props and check if they have the same timing
-			for (const prop of this._props) {
-				if (prop._timing === this._timing)
-					continue;
+		// 	// loop through all props and check if they have the same timing
+		// 	for (const prop of this._props) {
+		// 		if (prop._timing === this._timing)
+		// 			continue;
 
-				prop._timing.advance(change);
-				if (!prop._timing.ended)
-					shouldKeepListener = true;
-			}
+		// 		prop._timing.advance(change);
+		// 		if (!prop._timing.ended)
+		// 			shouldKeepListener = true;
+		// 	}
 
-			// now render
-			for (const prop of this._props) {
-				prop.render(this.targets, opts.changes);
-			}
+		// 	// now render
+		// 	for (const prop of this._props) {
+		// 		prop.render(this.targets, opts.changes);
+		// 	}
 
-			if (!shouldKeepListener) {
-				opts.remove();
-				this._runningTicker = null;
-			}
-		});
+		// 	if (!shouldKeepListener) {
+		// 		opts.remove();
+		// 		this._runningTicker = null;
+		// 	}
+		// });
+	// }
+
+	advance(change) {
+		this.timing.advance(change);
+	}
+
+	seek(pos) {
+		this.timing.seek(pos);
+	}
+
+	isFinite() {
+		return this.timing.isFinite();
+	}
+
+	get duration() {
+		return this.timing.duration;
+	}
+
+	render() {
+		// let shouldKeepListener = false;
+
+		// this._timing.advance(change);
+		// if (!this._timing.ended)
+		// 	shouldKeepListener = true;
+
+		// // loop through all props and check if they have the same timing
+		// for (const prop of this._props) {
+		// 	if (prop._timing === this._timing)
+		// 		continue;
+
+		// 	prop._timing.advance(change);
+		// 	if (!prop._timing.ended)
+		// 		shouldKeepListener = true;
+		// }
+
+		const pos = this.timing.position;
+
+		// now render
+		for (const prop of this._props) {
+			prop.render(pos, this.targets);
+		}
+
+		// if (!shouldKeepListener) {
+		// 	opts.remove();
+		// 	this._runningTicker = null;
+		// }
 	}
 
 	// t = 0-1
-	seek(t) {}
+	// seek(t) {}
 
-	pause() {}
+	// pause() {}
 
-	reset() {
-		this.seek(0);
-	}
+	// reset() {
+	// 	this.seek(0);
+	// }
 }
 
 class Targets {
@@ -134,14 +180,13 @@ class PropertyAnimation {
 			this.to = this.prop.parseValue(value);
 		}
 
-		// either the timing is custom which then only exists in this property
-		// or it is shared between the animation
-		this._timing = animation._timing;
+		// // either the timing is custom which then only exists in this property
+		// // or it is shared between the animation
+		// this._timing = animation._timing;
 	}
 
-	render(targets, changes) {
-
-		const pos = this._timing.position;
+	render(pos, targets) {
+		// const pos = this._timing.position;
 
 		let from = this.from;
 		if (!from)

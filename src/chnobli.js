@@ -16,13 +16,34 @@ export function animate(target, props = {}) {
 }
 
 export function timeline(props = {}) {
-	const autoplay = parseAutoplay(takeProp(props, 'autoplay', true));
-
 	const timeline = new Timeline(props);
-	if (autoplay)
-		timeline.play();
 
-	return timeline;
+	let runningTicker = null;
+
+	return {
+		add(targets, props, offset = null) {
+			timeline.add(targets, props, offset);
+
+			return this;
+		},
+		label(label, offset = null) {
+			timeline.label(label, offset);
+
+			return this;
+		},
+		play() {
+			if (runningTicker)
+				return;
+
+			timeline.init();
+
+			runningTicker = timeline.ticker.add((change, opts) => {
+				timeline.advance(change);
+
+				timeline.render();
+			});
+		}
+	};
 }
 
 export function to(to) {

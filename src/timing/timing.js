@@ -1,72 +1,143 @@
 import Ease from './ease.js';
 import { takeProp } from '../utils/internal.js';
 
-// const START = 0;
-// const RUNNING = 1;
-// const ENDING = 2;
-// const ENDED = 3;
+// does timing need repeat here? or should that be in another class?
 
 export default class Timing {
 	// removes the relevant properties from the props
 
-	// props duration: in s 0-x
+	/*
+	seeking
+	if repeat is infinite
+	seek will only control the current iteration
+	if repeat is finite
+	seek will control the entire time
+
+
+	{
+		duration: in ms
+		ease: easeFunction
+		repeat: -1 - x,
+		alternate
+	}
+	*/
 	constructor(props) {
-		// in ms
-		this._duration = parseDuration(takeProp(props, 'duration', 1));
-		//
-		this._ease = new Ease(takeProp(props, 'ease', null));
-		// -1 inifinite | repeat
-		this._repeat = parseRepeat(takeProp(props, 'repeat', false));
-		this._delay = parseDelay(takeProp(props, 'delay', 0));
-		this._alternate = parseAlternate(takeProp(props, 'alternate', true));
+		this.setDuration(props.duration);
+		this.ease = props.ease ?? (t => t);
+		this.repeat = props.repeat ?? 0;
+		this.alternate = props.alternate ?? true;
+		this.reversed = props.reversed ?? false;
 
 		this.position = 0;
 		this.ended = false;
 
 		// progress does not take alternation into account and has no easing
+		// this always increments up until it overflows
 		this._progress = 0;
-		this._iteration = 1;
+		// this._reversed = false;
+
 		// scrub
+	}
+
+	setDuration(iterDuration) {
+		this.iterDuration = iterDuration;
+
+		this.duration = this.iterDuration;
+		if (this.repeat > -1) {
+			this.duration = (this.repeat + 1) * this.iterDuration;
+		}
+	}
+
+	isFinite() {
+		return this.repeat > -1;
 	}
 
 	advance(change) {
 		if (this.ended)
 			return;
 
-		this._progress += change / this._duration;
+		this._updateProgress(this._progress + change / this.iterDuration);
+	}
 
-		// check if we should repeat
-		if (this._progress > 1) {
-			// yes repeat
-			if (this._repeat !== 0) {
-				// can still repeat
-				if (this._repeat < 0 || this._repeat - this._iteration > 0) {
-					this._iteration += 1;
-					this._progress -= 1;
-				} else {
-					// reached the end
-					this._progress = 1;
-					this.ended = true;
-				}
-			} else {
-				// no don't repeat todo should change state to ended
-				this._progress = 1;
-				this.ended = true;
+	// needs to be between 0 and 1
+	seek(pos) {
+		if (this.repeat <= 0) {
+			this._updateProgress(pos);
+		} else {
+		// finite
+			this._updateProgress(pos * (this.repeat + 1));
+		}
+	}
+
+	_updateProgress(newProgress) {
+		// console.log('newProgress', newProgress);
+
+		// const prevIter = Math.floor(this._progress);
+		this._progress = newProgress;
+		const iter = Math.floor(this._progress);
+
+		let reversed = this.reversed;
+
+		if (this.repeat === 0 && this._progress > 1) {
+			// let's stop it
+			this._progress = 1;
+			this.ended = true;
+		} else if (this.repeat > 0 && this.repeat < iter) {
+			// repetition ends
+			this._progress = iter;
+			this.ended = true;
+		} else {
+			this.ended = false;
+
+			// const iterChange = Math.floor(this._progress) - prevIter;
+			// if (iterChange === 1)
+			// 	debugger;
+
+			// if (this._progress > 1) {
+			// 	debugger
+			// }
+
+			// calc if we are in a reversed iteration or not
+			if (this.alternate) {
+				// debugger;
+				let shouldInverse = Math.floor(this._progress) % 2 === 1;
+				if (shouldInverse)
+					reversed = !reversed;
 			}
+
+			// alternate
+			// if (iterChange > 0 && this.alternate) {
+			// 	let shouldInverse = iterChange % 2 === 1;
+			// 	if (shouldInverse)
+			// 		this.reversed = !this.reversed;
+			// }
 		}
 
-		this.position = this._progress;
+		// now calculate the position
 
-		// alternate
-		if (this._alternate && this._iteration % 2 === 0) {
+		this.position = this._progress % 1;
+
+		if (reversed)
 			this.position = 1 - this.position;
-		}
 
-		this.position = this._ease.apply(this.position);
+		this.position = this.ease(this.position);
+		// debugger
 	}
 }
 
-function parseDuration(dur) {
+export function newTiming(props) {
+	const nProps = {
+		duration: parseDuration(takeProp(props, 'duration', 1)),
+		ease: parseEase(takeProp(props, 'ease', null)),
+		repeat: parseRepeat(takeProp(props, 'repeat', false)),
+		alternate: parseAlternate(takeProp(props, 'alternate', true))
+	};
+	// this._delay = parseDelay(takeProp(props, 'delay', 0));
+
+	return new Timing(nProps);
+}
+
+export function parseDuration(dur) {
 	if (typeof dur !== 'number')
 		throw new Error('duration is not a number');
 
@@ -76,7 +147,14 @@ function parseDuration(dur) {
 	return Math.max(dur, 1);
 }
 
-function parseRepeat(repeat) {
+export function parseEase(ease) {
+	if (ease !== null && typeof ease !== 'function')
+		throw new Error('ease needs to be null or a function');
+
+	return ease;
+}
+
+export function parseRepeat(repeat) {
 	if (
 		repeat !== true && repeat !== false &&
 		(typeof repeat !== 'number' || repeat < 0)
@@ -91,16 +169,23 @@ function parseRepeat(repeat) {
 	return repeat;
 }
 
-function parseDelay(delay) {
+export function parseDelay(delay) {
 	if (typeof delay !== 'number' || delay < 0)
 		throw new Error('delay needs to be 0+');
 
 	return delay;
 }
 
-function parseAlternate(alternate) {
+export function parseAlternate(alternate) {
 	if (alternate !== true && alternate !== false)
 		throw new Error('alternate needs to be true|false');
 
 	return alternate;
+}
+
+export function parseReversed(reversed) {
+	if (reversed !== true && reversed !== false)
+		throw new Error('reversed needs to be true|false');
+
+	return reversed;
 }
