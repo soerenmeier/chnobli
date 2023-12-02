@@ -131,7 +131,7 @@ export default class Timing {
 
 export function newTiming(props) {
 	const nProps = {
-		duration: parseDuration(takeProp(props, 'duration', 1)),
+		duration: parseDuration(takeProp(props, 'duration', 1000)),
 		ease: parseEase(takeProp(props, 'ease', null)),
 		repeat: parseRepeat(takeProp(props, 'repeat', false)),
 		alternate: parseAlternate(takeProp(props, 'alternate', true))
@@ -146,7 +146,7 @@ export function parseDuration(dur) {
 		throw new Error('duration is not a number');
 
 	// convert s to ms
-	dur = Math.round(dur * 1000);
+	dur = Math.round(dur);
 
 	return Math.max(dur, 1);
 }

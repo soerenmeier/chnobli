@@ -16,7 +16,7 @@ export default class Timeline {
 	*/
 	constructor(props = {}) {
 		const nProps = {
-			duration: 1,
+			duration: 1000,
 			ease: parseEase(takeProp(props, 'ease', null)),
 			repeat: parseRepeat(takeProp(props, 'repeat', false)),
 			alternate: parseAlternate(takeProp(props, 'alternate', true)),
@@ -97,8 +97,7 @@ export default class Timeline {
 				offset = new Offset(labels[offset.value]);
 			}
 
-
-			const pos = this.entries[i - 1 - entry.relative]?.end ?? 0;
+			const pos = this.entries[i - 1 - entry.relativeOffset]?.end ?? 0;
 
 			let start = offset.calculate(pos);
 			if (start < 0)
@@ -220,14 +219,14 @@ class Offset {
 
 		if (typeof offset === 'number') {
 			this.type = 'absolute';
-			this.value = offset * 1000;
+			this.value = offset;
 		} else if (typeof offset === 'string') {
 			if (offset.startsWith('-=')) {
 				this.type = 'sub';
-				this.value = parseFloat(offset.substring(2)) * 1000;
+				this.value = parseFloat(offset.substring(2));
 			} else if (offset.startsWith('+=')) {
 				this.type = 'add';
-				this.value = parseFloat(offset.substring(2)) * 1000;
+				this.value = parseFloat(offset.substring(2));
 			} else {
 				this.type = 'label';
 				this.value = offset;

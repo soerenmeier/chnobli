@@ -3,6 +3,8 @@ Adapted from https://github.com/sveltejs/svelte
 Distributed under MIT License https://github.com/sveltejs/svelte/blob/main/LICENSE.md
 */
 
+import bezierEasing from 'bezier-easing';
+
 /**
  * @param {number} t
  * @returns {number}
@@ -283,4 +285,8 @@ export function sineIn(t) {
  */
 export function sineOut(t) {
 	return Math.sin((t * Math.PI) / 2);
+}
+
+export function cubicBezier(x1, y1, x2, y2) {
+	return bezierEasing(x1, y1, x2, y2);
 }

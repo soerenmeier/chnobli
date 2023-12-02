@@ -1,3 +1,5 @@
+const DEBUG_SET_GET = false;
+
 export default class Target {
 	constructor(target) {
 		this.target = target;
@@ -37,6 +39,9 @@ export class DomTarget extends Target {
 	}
 
 	getValue(prop) {
+		if (DEBUG_SET_GET)
+			console.log('get', prop.name);
+
 		let val = this.currentValues.get(prop.name);
 		if (val)
 			return val.value;
@@ -47,6 +52,9 @@ export class DomTarget extends Target {
 	}
 
 	setValue(prop, value) {
+		if (DEBUG_SET_GET)
+			console.log('set', prop.name, value);
+
 		// todo maybe register the props separately
 		this.currentValues.set(prop.name, { prop, value });
 	}
@@ -63,7 +71,10 @@ export class DomTarget extends Target {
 
 			const transformFunction = prop.transformFunction();
 			if (transformFunction) {
-				transforms[transformFunction] = value.toString();
+				if (typeof transformFunction === 'function')
+					transformFunction(transforms, value);
+				else
+					transforms[transformFunction] = value.toString();
 				continue;
 			}
 
@@ -83,7 +94,7 @@ export class DomTarget extends Target {
 }
 
 export function newTarget(target) {
-	if (target instanceof HTMLElement)
+	if (target instanceof HTMLElement || target instanceof SVGElement)
 		return new DomTarget(target);
 
 	throw new Error('unknown target');

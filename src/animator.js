@@ -180,6 +180,6 @@ function hexToRgb(val) {
 	return values;
 }
 
-function rgbToHex(rgb) {
-	return 
-}
+// function rgbToHex(rgb) {
+// 	return 
+// }

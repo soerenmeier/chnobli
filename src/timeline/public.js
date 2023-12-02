@@ -31,29 +31,14 @@ export default class PublicTimeline {
 				...props
 			};
 
-			console.log('nProps', nProps);
-
 			for (const prop in nProps) {
 				nProps[prop] = callStagger(nProps[prop], i, targets.length);
 			}
 
-			console.log('nProps', nProps);
-
 			const nOffset = callStagger(offset, i);
-
-			console.log('target', target);
 
 			this._inner.add(target, nProps, nOffset, i);
 		}
-
-		// props = {
-		// 	...this._defaults,
-		// 	...props
-		// };
-
-		// now handle stagger
-
-		// this._inner.add(targets, , offset);
 
 		return this;
 	}
@@ -102,4 +87,9 @@ export default class PublicTimeline {
 	reverse() {
 		this._inner.timing.reverse();
 	}
+
+	// update() {
+	// 	console.log('render');
+	// 	this._inner.render();
+	// }
 }

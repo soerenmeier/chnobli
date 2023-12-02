@@ -22,5 +22,8 @@
 		"eslint": "^8.45.0",
 		"jsdoc": "^4.0.2",
 		"typescript": "^5.1.6"
+	},
+	"dependencies": {
+		"bezier-easing": "^2.1.0"
 	}
 }

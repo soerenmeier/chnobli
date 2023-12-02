@@ -68,6 +68,38 @@ export class Transform extends Property {
 	}
 }
 
+export class TransformXY extends Property {
+	constructor(name) {
+		super(name);
+	}
+
+	parseValue(val) {
+		if (Array.isArray(val))
+			val = { x: val[0], y: val[1] };
+
+		const { x, y } = val;
+
+		return {
+			x: Value.parse(val.x, 'px'),
+			y: Value.parse(val.y, 'px')
+		};
+	}
+
+	defaultValue() {
+		return {
+			x: new Value(0, 'px'),
+			y: new Value(0, 'px')
+		};
+	}
+
+	transformFunction() {
+		return (transforms, value) => {
+			transforms['translateX'] = value.x.toString();
+			transforms['translateY'] = value.y.toString();
+		};
+	}
+}
+
 const STYLE_PROPS = {
 	'width': 'px',
 	'height': 'px',
@@ -115,6 +147,8 @@ export function newProperty(prop, targetType = '') {
 
 	if (TRANSFORM_PROPS.includes(prop))
 		return new Transform(prop);
+	if (prop === 'xy')
+		return new TransformXY(prop);
 	if (prop in STYLE_PROPS)
 		return new StyleProp(prop);
 

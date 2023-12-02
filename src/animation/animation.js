@@ -95,6 +95,8 @@ class PropertyAnimation {
 		this.prop = newProperty(prop, animation.target.type());
 		// we will get the from the targets
 
+		this.valueFn = null;
+
 		this.iniFrom = null;
 		this.iniTo = null;
 
@@ -109,6 +111,8 @@ class PropertyAnimation {
 
 			if (!this.iniFrom && !this.iniTo)
 				throw new Error('from or to expected');
+		} else if (typeof value === 'function') {
+			this.valueFn = value;
 		} else {
 			this.iniTo = this.prop.parseValue(value);
 		}
@@ -116,6 +120,9 @@ class PropertyAnimation {
 
 	// calculate from and to position
 	init(target) {
+		if (this.valueFn)
+			return;
+
 		this.from = this.iniFrom;
 		if (!this.from)
 			this.from = target.getValue(this.prop);
@@ -133,6 +140,11 @@ class PropertyAnimation {
 	}
 
 	render(pos, target) {
+		if (this.valueFn) {
+			target.setValue(this.prop, this.prop.parseValue(this.valueFn(pos)));
+			return;
+		}
+
 		const dif = this.to.num - this.from.num;
 
 		target.setValue(this.prop, this.from.cloneAdd(pos * dif));

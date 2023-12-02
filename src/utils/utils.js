@@ -1,4 +1,6 @@
+import { curve } from './motionpath.js';
 
+export { curve };
 
 export function to(to) {
 	return { to };
@@ -14,13 +16,13 @@ export function fromTo(from, to) {
 
 // converts some element 
 export function chars(element) {
-	if (element.dataset.processedByChars)
+	if (element.dataset.processedChars)
 		return Array.from(element.children);
 
 	const chars = element.textContent.split('');
 
 	element.textContent = '';
-	element.dataset.processedByChars = true;
+	element.dataset.processedChars = 'yes';
 
 	return chars.map(c => {
 		const span = document.createElement('span');
@@ -30,4 +32,24 @@ export function chars(element) {
 
 		return span;
 	});
+}
+
+// get the offset to the page
+export function pageOffset(el) {
+	if ('offsetTop' in el) {
+		return {
+			top: el.offsetTop,
+			left: el.offsetLeft,
+			width: el.offsetWidth,
+			height: el.offsetHeight
+		};
+	}
+
+	const rect = el.getBoundingClientRect();
+	return {
+		top: window.scrollY + rect.top,
+		left: window.scrollX + rect.left,
+		width: rect.width,
+		height: rect.height
+	};
 }
