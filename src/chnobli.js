@@ -1,6 +1,6 @@
-// import { takeProp } from './utils/internal.js';
 import Animation from './animation/public.js';
 import Timeline from './timeline/public.js';
+import Scroll from './scroll/public.js';
 import { stagger as _stagger } from './stagger/stagger.js';
 
 
@@ -17,6 +17,10 @@ export function timeline(props = {}) {
 
 export function stagger(value) {
 	return _stagger(value);
+}
+
+export function scroll(props = {}) {
+	return new Scroll(props);
 }
 
 /*

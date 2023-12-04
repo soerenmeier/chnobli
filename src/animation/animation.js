@@ -125,29 +125,29 @@ class PropertyAnimation {
 
 		this.from = this.iniFrom;
 		if (!this.from)
-			this.from = target.getValue(this.prop);
+			this.from = this.prop.getValue(target);
 
 		this.to = this.iniTo;
 		if (!this.to)
-			this.to = target.getValue(this.prop);
+			this.to = this.prop.getValue(target);
 
 		if (this.to.unit !== this.from.unit)
 			throw new Error(this.from.unit + ' != ' + this.to.unit);
 	}
 
 	restoreBefore(target) {
-		target.removeValue(this.prop);
+		this.prop.removeValue(target);
 	}
 
 	render(pos, target) {
 		if (this.valueFn) {
-			target.setValue(this.prop, this.prop.parseValue(this.valueFn(pos)));
+			this.prop.setValue(target, this.prop.parseValue(this.valueFn(pos)));
 			return;
 		}
 
 		const dif = this.to.num - this.from.num;
 
-		target.setValue(this.prop, this.from.cloneAdd(pos * dif));
+		this.prop.setValue(target, this.from.cloneAdd(pos * dif));
 	}
 }
 

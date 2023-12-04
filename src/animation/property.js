@@ -16,16 +16,20 @@ export default class Property {
 
 	// try to access the value from the target
 	getValue(target) {
-		return this.defaultValue();
+		const val = target.getValue(this.name);
+		if (typeof val === 'undefined' || val === null)
+			return this.defaultValue();
+
+		return val;
 	}
 
-	// if this property is a transform function return its name
-	transformFunction() {
-		return null;
+	setValue(target, val) {
+		return target.setValue(this.name, val);
 	}
 
-	styleName() {
-		return null;
+	removeValue(target) {
+		// todo remove
+		return target.removeValue(this.name);
 	}
 }
 
@@ -63,8 +67,21 @@ export class Transform extends Property {
 		return new Value(this._defVal, this._defUnit);
 	}
 
-	transformFunction() {
-		return this._transformFunction;
+	getValue(target) {
+		const val = target.getTransformValue(this._transformFunction);
+		if (typeof val === 'undefined' || val === null)
+			return this.defaultValue();
+
+		return val;
+	}
+
+	setValue(target, val) {
+		return target.setTransformValue(this._transformFunction, val);
+	}
+
+	removeValue(target) {
+		// todo remove
+		return target.removeTransformValue(this._transformFunction);
 	}
 }
 
@@ -92,11 +109,26 @@ export class TransformXY extends Property {
 		};
 	}
 
-	transformFunction() {
-		return (transforms, value) => {
-			transforms['translateX'] = value.x.toString();
-			transforms['translateY'] = value.y.toString();
+	getValue(target) {
+		const x = target.getTransformValue('translateX');
+		const y = target.getTransformValue('translateY');
+
+		const def = this.defaultValue();
+
+		return {
+			x: x ? x : def.x,
+			y: y ? y : def.y
 		};
+	}
+
+	setValue(target, val) {
+		target.setTransformValue('translateX', val.x);
+		target.setTransformValue('translateY', val.y);
+	}
+
+	removeValue(target) {
+		target.removeTransformValue('translateX');
+		target.removeTransformValue('translateY');
 	}
 }
 
@@ -136,8 +168,20 @@ export class StyleProp extends Property {
 		return Value.parse(style[this.name]);
 	}
 
-	styleName() {
-		return this.name;
+	getValue(target) {
+		const val = target.getStyleValue(this.name);
+		if (!val)
+			return this.defaultValue();
+
+		return val;
+	}
+
+	setValue(target, val) {
+		return target.setStyleValue(this.name, val);
+	}
+
+	removeValue(target) {
+		return target.removeStyleValue(this.name);
 	}
 }
 

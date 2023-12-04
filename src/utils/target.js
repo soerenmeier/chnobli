@@ -12,12 +12,40 @@ export default class Target {
 		return 'unknown';
 	}
 
-	getValue(prop) {
-		throw new Error('cannot get start value of ' + prop.name);
+	getValue(name) {
+		throw new Error('cannot get value of ' + name);
 	}
 
-	setValue(prop, value) {
-		throw new Error('cannot set value of ' + prop.name);
+	setValue(name, value) {
+		throw new Error('cannot set value of ' + name);
+	}
+
+	removeValue(name) {
+		throw new Error('cannot remove value of ' + name);
+	}
+
+	getTransformValue(name) {
+		return this.getValue(name);
+	}
+
+	setTransformValue(name, value) {
+		return this.setValue(name, value);
+	}
+
+	removeTransformValue(name) {
+		return this.removeValue(name);
+	}
+
+	getStyleValue(name) {
+		return this.getValue(name);
+	}
+
+	setStyleValue(name, value) {
+		return this.setValue(name, value);
+	}
+
+	removeStyleValue(name) {
+		return this.removeValue(name);
 	}
 
 	apply() {}
@@ -29,67 +57,83 @@ export class DomTarget extends Target {
 
 		// for the moment 
 
-		// this.startValues = new Map;
-		// { prop, value }
-		this.currentValues = new Map;
+		this.transformValues = new Map;
+		this.styleValues = new Map;
+		this.values = new Map;
 	}
 
 	type() {
 		return 'dom';
 	}
 
-	getValue(prop) {
+	getValue(name) {
 		if (DEBUG_SET_GET)
-			console.log('get', prop.name);
+			console.log('get', name);
 
-		let val = this.currentValues.get(prop.name);
-		if (val)
-			return val.value;
-
-		val = prop.getValue(this);
-		this.currentValues.set(prop.name, { prop, value: val });
-		return val;
+		return this.values.get(name);
 	}
 
-	setValue(prop, value) {
+	setValue(name, value) {
 		if (DEBUG_SET_GET)
-			console.log('set', prop.name, value);
+			console.log('set', name, value);
 
-		// todo maybe register the props separately
-		this.currentValues.set(prop.name, { prop, value });
+		this.values.set(name, value);
 	}
 
-	removeValue(prop) {
-		this.currentValues.delete(prop.name);
+	removeValue(name) {
+		this.values.delete(name);
+	}
+
+	getTransformValue(name) {
+		if (DEBUG_SET_GET)
+			console.log('get', name);
+
+		return this.transformValues.get(name);
+	}
+
+	setTransformValue(name, value) {
+		if (DEBUG_SET_GET)
+			console.log('set', name, value);
+
+		this.transformValues.set(name, value);
+	}
+
+	removeTransformValue(name) {
+		this.transformValues.delete(name);
+	}
+
+	getStyleValue(name) {
+		if (DEBUG_SET_GET)
+			console.log('get', name);
+
+		return this.styleValues.get(name);
+	}
+
+	setStyleValue(name, value) {
+		if (DEBUG_SET_GET)
+			console.log('set', name, value);
+
+		this.styleValues.set(name, value);
+	}
+
+	removeStyleValue(name) {
+		this.styleValues.delete(name);
 	}
 
 	apply() {
-		// translateX: 0, scale: []
-		const transforms = {};
-
-		for (const { prop, value } of this.currentValues.values()) {
-
-			const transformFunction = prop.transformFunction();
-			if (transformFunction) {
-				if (typeof transformFunction === 'function')
-					transformFunction(transforms, value);
-				else
-					transforms[transformFunction] = value.toString();
-				continue;
-			}
-
-			const styleName = prop.styleName();
-			if (styleName) {
-				this.target.style[styleName] = value.toString();
-				continue;
-			}
-
-			throw new Error('what to do with ' + prop.name);
-		}
-
-		this.target.style.transform = Object.entries(transforms)
+		this.target.style.transform = Array.from(this.transformValues.entries())
 			.map(([k, v]) => `${k}(${v})`)
 			.join(' ');
+
+		// style
+		for (const [k, v] of this.styleValues.entries()) {
+			this.target.style[k] = v;
+		}
+
+		// values
+		for (const [k, v] of this.values.entries()) {
+			console.log('what todo with this ' + k);
+		}
 	}
 }
 

@@ -3,11 +3,16 @@ import Timeline from './timeline.js';
 import { STATE_AFTER } from '../timing/timing.js';
 import { callStagger } from '../stagger/stagger.js';
 
+const STATE_PAUSED = 0;
+const STATE_RENDER_ONCE = 1;
+const STATE_PLAYING = 2;
+
 export default class PublicTimeline {
 	constructor(props = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
 		this._inner = new Timeline(props);
 
+		this._state = STATE_PAUSED;
 		this._runningTicker = null;
 	}
 
@@ -50,34 +55,35 @@ export default class PublicTimeline {
 	}
 
 	play() {
-		if (this._runningTicker)
+		if (this._state === STATE_PLAYING)
 			return;
 
-		this._inner.init();
+		this._state = STATE_PLAYING;
 
-		this._runningTicker = this._inner.ticker.add((change, opts) => {
-			if (this._inner.timing.state === STATE_AFTER)
-				opts.remove();
-
-			this._inner.advance(change);
-
-			this._inner.render();
-		});
+		this._startTicker();
 
 		return this;
 	}
 
 	pause() {
-		if (!this._runningTicker)
+		if (this._state === STATE_PAUSED)
 			return;
 
-		this._runningTicker.remove();
-		this._runningTicker = null;
+		this._state = STATE_PAUSED;
+
+		this._stopTicker();
 	}
 
 	// 0-1
 	seek(pos) {
+		this._inner.init();
+
 		this._inner.seek(pos);
+
+		if (this._state !== STATE_PLAYING)
+			this._state = STATE_RENDER_ONCE;
+
+		this._startTicker();
 	}
 
 	reset() {
@@ -86,6 +92,41 @@ export default class PublicTimeline {
 
 	reverse() {
 		this._inner.timing.reverse();
+	}
+
+	_startTicker() {
+		if (this._runningTicker)
+			return;
+
+		this._inner.init();
+
+		this._runningTicker = this._inner.ticker.add(change => {
+			if (this._inner.timing.state === STATE_AFTER) {
+				this._stopTicker();
+				return;
+			}
+
+			if (this._state === STATE_PLAYING)
+				this._inner.advance(change);
+
+			// todo when we add smooth seeks we need to update this
+
+			this._inner.render();
+
+			// we rendered once let's stop
+			if (this._state === STATE_RENDER_ONCE) {
+				this._state = STATE_PAUSED;
+				this._stopTicker();
+			}
+		});
+	}
+
+	_stopTicker() {
+		if (!this._runningTicker)
+			return;
+
+		this._runningTicker.remove();
+		this._runningTicker = null;
 	}
 
 	// update() {
