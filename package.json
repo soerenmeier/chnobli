@@ -24,6 +24,7 @@
 		"typescript": "^5.1.6"
 	},
 	"dependencies": {
-		"bezier-easing": "^2.1.0"
+		"bezier-easing": "^2.1.0",
+		"fire": "npm:fire-lib-js@0.2.17"
 	}
 }

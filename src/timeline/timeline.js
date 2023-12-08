@@ -28,8 +28,6 @@ export default class Timeline {
 
 		// { type: label|animation, value: {}, offset, start: x, end: y, render }
 		this.entries = [];
-		// this.animationsStartOrder = [];
-		// this.animationsEndOrder = [];
 
 		this._initialized = false;
 		this._renderQueue = null;
@@ -153,7 +151,7 @@ export default class Timeline {
 			entry.value.init();
 		}
 
-		this.timing.seek(0);
+		this.timing.seek(-1);
 		this.timing.reversed = reversed;
 		startOrdered.forEach(e => {
 			e.value.seek(-1);

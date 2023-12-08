@@ -1,7 +1,8 @@
 import { takeProp } from '../utils/internal.js';
 import Timeline from './timeline.js';
-import { STATE_AFTER } from '../timing/timing.js';
+import { STATE_BEFORE, STATE_AFTER } from '../timing/timing.js';
 import { callStagger } from '../stagger/stagger.js';
+import Events from '../utils/events.js';
 
 const STATE_PAUSED = 0;
 const STATE_RENDER_ONCE = 1;
@@ -11,6 +12,9 @@ export default class PublicTimeline {
 	constructor(props = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
 		this._inner = new Timeline(props);
+
+		// 'start', 'end'
+		this._events = new Events;
 
 		this._state = STATE_PAUSED;
 		this._runningTicker = null;
@@ -94,6 +98,15 @@ export default class PublicTimeline {
 		this._inner.timing.reverse();
 	}
 
+	// start, update, end -> () => // remove Event
+	on(event, fn) {
+		return this._events.add(event, fn);
+	}
+
+	onPromise(event) {
+		return this._events.wait(event);
+	}
+
 	_startTicker() {
 		if (this._runningTicker)
 			return;
@@ -101,8 +114,13 @@ export default class PublicTimeline {
 		this._inner.init();
 
 		this._runningTicker = this._inner.ticker.add(change => {
+			if (this._inner.timing.state === STATE_BEFORE) {
+				this._events.trigger('start');
+			}
+
 			if (this._inner.timing.state === STATE_AFTER) {
 				this._stopTicker();
+				this._events.trigger('end');
 				return;
 			}
 
