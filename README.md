@@ -1,12 +1,5 @@
 
-## Fire Js
-This contains various helpers and types.
+## Chnobli js
 
-## Usage
-```json
-{
-	"dependencies": {
-		"fire": "npm:fire-lib-js@^0.2"
-	}
-}
-```
+## Version 0.1 unstable
+Version 0.1 is unstable the api might change at any version number
