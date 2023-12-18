@@ -1,3 +1,5 @@
+import Value from './value.js';
+
 const DEBUG_SET_GET = false;
 
 export default class Target {
@@ -106,7 +108,24 @@ export class DomTarget extends Target {
 		if (DEBUG_SET_GET)
 			console.log('get', name);
 
-		return this.styleValues.get(name);
+		const v = this.styleValues.get(name);
+
+		if (typeof v === 'undefined' || v === null) {
+			// let's try to get it from the dom
+			const style = getComputedStyle(this.target);
+			const styleV = style[name];
+
+			try {
+				const value = Value.parse(styleV);
+				this.styleValues.set(name, value);
+
+				return value;
+			} catch (e) {
+				console.log('could not parse value', styleV);
+				return v;
+			}
+		} else
+			return v;
 	}
 
 	setStyleValue(name, value) {

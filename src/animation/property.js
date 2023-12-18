@@ -160,15 +160,6 @@ export class StyleProp extends Property {
 	}
 
 	getValue(target) {
-		if (target.type() !== 'dom')
-			throw new Error('error not dom');
-
-		const style = getComputedStyle(target.target);
-
-		return Value.parse(style[this.name]);
-	}
-
-	getValue(target) {
 		const val = target.getStyleValue(this.name);
 		if (!val)
 			return this.defaultValue();
