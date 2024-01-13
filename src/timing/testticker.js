@@ -50,7 +50,7 @@ export default class TestTicker {
 		let i = 0;
 		const start = this._previousTick ?? 0;
 
-		for (i = 1; i <= max; i++) {
+		for (i = 1; i <= max; i += step) {
 			if (!this.tick(start + i))
 				return true;
 		}

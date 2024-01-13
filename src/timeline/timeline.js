@@ -1,7 +1,7 @@
 import { takeProp } from '../utils/internal.js';
 import Timing, {
 	parseEase, parseRepeat, parseAlternate, parseReversed,
-	STATE_RUNNING, STATE_AFTER, STATE_BEFORE, STATE_ENDED
+	STATE_BEFORE, STATE_ENDED
 } from '../timing/timing.js';
 import Ticker from '../timing/ticker.js';
 import Animation from '../animation/animation.js';

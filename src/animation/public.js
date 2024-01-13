@@ -1,6 +1,5 @@
 import { takeProp } from '../utils/internal.js';
 import Timeline from '../timeline/public.js';
-import { parseDelay } from '../timing/timing.js';
 import { staggerMap } from '../stagger/stagger.js';
 
 /**

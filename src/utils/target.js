@@ -18,7 +18,7 @@ export default class Target {
 		throw new Error('cannot get value of ' + name);
 	}
 
-	setValue(name, value) {
+	setValue(name, _value) {
 		throw new Error('cannot set value of ' + name);
 	}
 
@@ -166,7 +166,7 @@ export class DomTarget extends Target {
 		}
 
 		// values
-		for (const [k, v] of this.values.entries()) {
+		for (const [k, _v] of this.values.entries()) {
 			console.log('what todo with this ' + k);
 		}
 	}

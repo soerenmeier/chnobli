@@ -28,7 +28,7 @@ export default class ScrollEvent {
 		this._listeners.delete(fn);
 	}
 
-	_onScroll(e) {
+	_onScroll(_e) {
 		for (const fn of this._listeners) {
 			fn({
 				y: window.scrollY,

@@ -1,4 +1,3 @@
-import Ease from './ease.js';
 import { takeProp } from '../utils/internal.js';
 
 export const STATE_BEFORE = 0;

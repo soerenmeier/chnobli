@@ -1,4 +1,3 @@
-import Value from '../utils/value.js';
 import { newTarget } from '../utils/target.js';
 
 /**

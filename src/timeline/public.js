@@ -1,6 +1,6 @@
 import { takeProp } from '../utils/internal.js';
 import Timeline from './timeline.js';
-import { STATE_START, STATE_ENDED } from '../timing/timing.js';
+import { STATE_ENDED } from '../timing/timing.js';
 import { callStagger } from '../stagger/stagger.js';
 import Events from '../utils/events.js';
 
@@ -169,7 +169,7 @@ export default class PublicTimeline {
 	 * Set's the timeline to a specific direction
 	 */
 	setReversed(reversed) {
-		if (this.isReversed() == reverse)
+		if (this.isReversed() == reversed)
 			return;
 		this.reverse();
 	}

@@ -1,3 +1,5 @@
+/* eslint no-unused-vars: 0 */
+
 import { quadInOut, quadOut } from './easing/index.js';
 import { range } from 'fire/util.js';
 

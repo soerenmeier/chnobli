@@ -1,7 +1,4 @@
-import { takeProp } from '../utils/internal.js';
-import Value from '../utils/value.js';
-// import Ease from '../easing/ease.js';
-import Timing, {
+import {
 	newTiming, STATE_BEFORE, STATE_AFTER
 } from '../timing/timing.js';
 

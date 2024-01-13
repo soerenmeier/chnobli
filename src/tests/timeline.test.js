@@ -24,8 +24,6 @@ describe('timeline', () => {
 		});
 		tl.play();
 
-		console.log(target);
-
 		ticker.run(0);
 		expect(target.style.transform).toBe('translateX(0.000px)');
 

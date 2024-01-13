@@ -97,8 +97,8 @@ export class TransformXY extends Property {
 		const { x, y } = val;
 
 		return {
-			x: Value.parse(val.x, 'px'),
-			y: Value.parse(val.y, 'px')
+			x: Value.parse(x, 'px'),
+			y: Value.parse(y, 'px')
 		};
 	}
 
