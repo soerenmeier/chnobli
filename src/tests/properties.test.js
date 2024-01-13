@@ -17,7 +17,6 @@ describe('properties', () => {
 			.play();
 
 		ticker.run();
-		console.log(div);
 		expect(div.style.transform).toBe('translateX(100.000px)');
 		expect(div.style.width).toBe('100.000px');
 

@@ -131,6 +131,9 @@ export default class PublicTimeline {
 		this._startTicker();
 	}
 
+	// seek in Range (useful for scroll timelines)
+	// seek(startOffset, endOffset, pos)
+
 	/**
 	 * Resets the current timeline to the start
 	 * without changing anything
@@ -178,8 +181,18 @@ export default class PublicTimeline {
 		this._inner.timing.reverse();
 	}
 
-	// not worknig
-	// start, update, end -> () => // remove Event
+	/**
+	 * Listen on events
+	 * 
+	 * returns a function to remove the event listener
+	 * 
+	 * ## Events
+	 * 
+	 * ### end
+	 * Get's executed once the timeline comes to the end
+	 * Does not get executed during seeking
+	 * 
+	 */
 	on(event, fn) {
 		return this._events.add(event, fn);
 	}
@@ -196,12 +209,14 @@ export default class PublicTimeline {
 		this._inner.init();
 
 		this._runningTicker = this._inner.ticker.add(change => {
-
 			if (this._inner.timing.state >= STATE_ENDED) {
 				if (!this._renderedOnce) {
 					this._renderedOnce = true;
 					this._inner.render();
 				}
+
+				if (this._state === STATE_PLAYING)
+					this._events.trigger('end');
 
 				this._state = STATE_PAUSED;
 				this._stopTicker();
@@ -226,6 +241,9 @@ export default class PublicTimeline {
 			this._inner.render();
 
 			if (this._inner.timing.state >= STATE_ENDED) {
+				if (this._state === STATE_PLAYING)
+					this._events.trigger('end');
+
 				this._state = STATE_PAUSED;
 				this._stopTicker();
 				return

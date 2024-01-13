@@ -105,8 +105,12 @@ describe('timing', () => {
 		expect(timing.position).toBe(0.25);
 
 		timing.reverse();
+		expect(timing.state).toBe(STATE_RUNNING);
 		expect(timing.position).toBe(0.25);
-		timing.advance(25);
+		timing.advance(24);
+		expect(timing.state).toBe(STATE_RUNNING);
+		timing.advance(1);
+		expect(timing.state).toBe(STATE_ENDED);
 		expect(timing.position).toBe(0);
 
 		timing.seek(0.75);

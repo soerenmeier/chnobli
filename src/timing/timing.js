@@ -2,10 +2,10 @@ import Ease from './ease.js';
 import { takeProp } from '../utils/internal.js';
 
 export const STATE_BEFORE = 0;
-/// start only occurs if the current position is exactly 0
+/// start only occurs if the current position is exactly 0 or 1 if reversed
 export const STATE_START = 1;
 export const STATE_RUNNING = 2;
-/// ended only occurs if the current position is exactly 1
+/// ended only occurs if the current position is exactly 1 or 0 if reversed
 export const STATE_ENDED = 3;
 export const STATE_AFTER = 4;
 
@@ -63,6 +63,25 @@ export default class Timing {
 
 	positionMs() {
 		return this.position * this.iterDuration;
+	}
+
+	// todo find a better name
+	/**
+	 * Returns the position in milliseconds
+	 * 
+	 * If the state is before or after the position might be more/less than
+	 * required
+	 */
+	positionMsUnbounded() {
+		const outOfBounds = this.state <= STATE_BEFORE
+			|| this.state >= STATE_AFTER;
+
+		if (!outOfBounds)
+			return this.position * this.iterDuration;
+
+		if (this.position === 0)
+			return -1;
+		return this.position * this.iterDuration + 1;
 	}
 
 	/// iterDuration will always be >=1

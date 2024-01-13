@@ -198,12 +198,7 @@ export default class Timeline {
 			active: []
 		};
 
-		let pos = this.timing.positionMs();
-		if (this.timing.state <= STATE_BEFORE) {
-			pos = -1;
-		} else if (this.timing.state >= STATE_AFTER) {
-			pos += 1;
-		}
+		const pos = this.timing.positionMsUnbounded();
 
 		for (const entry of this.entries) {
 			if (entry.type !== 'animation')

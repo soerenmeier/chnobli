@@ -141,6 +141,50 @@ describe('timeline', () => {
 		tl.reverse();
 		tl.play();
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(0.000px)');
+		expect(target.style.transform).toBe('');
+	});
+
+	it('timeline events', () => {
+		const ticker = new TestTicker;
+
+		const target = el();
+		const tl = timeline()
+			.add(target, {
+				x: 50,
+				duration: 10
+			})
+			.add(target, {
+				y: 50,
+				duration: 10
+			});
+
+		let endCounter = 0;
+		tl.on('end', () => endCounter += 1);
+
+		tl.play();
+		ticker.run(5);
+		expect(endCounter).toBe(0);
+
+		ticker.run();
+		expect(endCounter).toBe(1);
+
+		tl.play();
+		ticker.run();
+		// not sure this is the behaviour we wan't
+		expect(endCounter).toBe(2);
+
+		tl.reverse();
+		ticker.run();
+		expect(endCounter).toBe(2);
+		expect(target.style.transform).toBe('translateX(50.000px) translateY(50.000px)');
+
+		tl.play();
+		ticker.run();
+		expect(endCounter).toBe(3);
+		expect(target.style.transform).toBe('');
+
+		tl.play();
+		ticker.run();
+		expect(endCounter).toBe(4);
 	});
 });
