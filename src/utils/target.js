@@ -174,13 +174,17 @@ export class DomTarget extends Target {
 
 export function newTarget(target) {
 	if (typeof window === 'undefined') {
-		if (typeof target.__simulatedDom__ === 'function')
+		if (typeof target.__simulatedDom__ === 'function') {
 			return new DomTarget(target, {
 				getComputedStyle: target.__getComputedStyle__()
 			});
+		}
 	} else {
-		if (target instanceof HTMLElement || target instanceof SVGElement)
-			return new DomTarget(target, { getComputedStyle });
+		if (target instanceof HTMLElement || target instanceof SVGElement) {
+			return new DomTarget(target, {
+				getComputedStyle: e => window.getComputedStyle(e)
+			});
+		}
 	}
 
 	throw new Error('unknown target');

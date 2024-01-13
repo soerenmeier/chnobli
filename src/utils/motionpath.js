@@ -8,6 +8,9 @@ function catmullRom(p0, p1, p2, p3, t, p1Tension, p2Tension) {
 		t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
 }
 
+/**
+ * Calculates a curve between different points
+ */
 export function curve(points, tension = 1, opts = {}) {
 	if (points.length <= 1)
 		throw new Error('curve expects at least 2 points');

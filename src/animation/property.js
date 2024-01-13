@@ -133,8 +133,12 @@ export class TransformXY extends Property {
 }
 
 const STYLE_PROPS = {
+	'minWidth': 'px',
 	'width': 'px',
+	'maxWidth': 'px',
+	'minHeight': 'px',
 	'height': 'px',
+	'maxHeight': 'px',
 	'top': 'px',
 	'left': 'px',
 	'right': 'px',

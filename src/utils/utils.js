@@ -2,19 +2,37 @@ import { curve } from './motionpath.js';
 
 export { curve };
 
+/**
+ * Explicitly tells a property to animate the to value
+ */
 export function to(to) {
 	return { to };
 }
 
+/**
+ * Explicitly tells a property to animate the from value
+ */
 export function from(from) {
 	return { from };
 }
 
+/**
+ * Explicitly tells a property to animate with the from and to values
+ */
 export function fromTo(from, to) {
 	return { from, to };
 }
 
-// converts some element 
+/**
+ * makes a value reactive to `Timeline::update` calls or resizes
+ */
+export function reactive(fn) {
+	return { reactive: fn };
+}
+
+/**
+ * Converts an element with text into span with chars
+ */
 export function chars(element) {
 	if (element.dataset.processedChars)
 		return Array.from(element.children);
@@ -34,7 +52,9 @@ export function chars(element) {
 	});
 }
 
-// get the offset to the page
+/**
+ * get the offset to the current page page
+ */
 export function pageOffset(el) {
 	if ('offsetTop' in el) {
 		return {
