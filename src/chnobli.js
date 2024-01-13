@@ -6,7 +6,9 @@ import { stagger as _stagger } from './stagger/stagger.js';
 
 // todo maybe add, to, from and fromTo to the animate function
 
-
+/**
+ * Creates a simple animation
+ */
 export function animate(targets, props = {}) {
 	return new Animation(targets, props);
 }

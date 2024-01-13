@@ -18,7 +18,7 @@ export default class Animation {
 	constructor(target, ticker, props = {}) {
 		this.timing = newTiming(props);
 		this._ticker = ticker;
-		this.target = ticker._targets.register(target);
+		this.target = ticker.registerTarget(target);
 
 		this._prevTimingState = this.timing.state;
 		this._props = [];
@@ -40,6 +40,11 @@ export default class Animation {
 	advance(change) {
 		this._prevTimingState = this.timing.state;
 		this.timing.advance(change);
+	}
+
+	seekMs(ms) {
+		this._prevTimingState = this.timing.state;
+		this.timing.seekMs(ms);
 	}
 
 	seek(pos) {

@@ -2,11 +2,27 @@ import Ease from './ease.js';
 import { takeProp } from '../utils/internal.js';
 
 export const STATE_BEFORE = 0;
+/// start only occurs if the current position is exactly 0
 export const STATE_START = 1;
 export const STATE_RUNNING = 2;
+/// ended only occurs if the current position is exactly 1
 export const STATE_ENDED = 3;
 export const STATE_AFTER = 4;
 
+/**
+ * This class handles everything timing related
+ * 
+ * It manages easing, keeps track of where we are at the moment
+ * 
+ * The most important property is position which gives the calculated position
+ * 
+ * 
+ * Timing works the same as in after effects
+ * duration must be at least 1ms
+ * 
+ * if the duration is 1ms seek 0 or 1 will always result in position 1
+ * because it is like one frame, so it's an image
+ */
 export default class Timing {
 	// removes the relevant properties from the props
 
@@ -38,13 +54,17 @@ export default class Timing {
 		// progress does not take alternation into account and has no easing
 		// this always increments up until it overflows
 		this._progress = 0;
-		// this._reversed = false;
 
 		// scrub
 	}
 
+	positionMs() {
+		return this.position * this.iterDuration;
+	}
+
+	/// iterDuration will always be >=1
 	setDuration(iterDuration) {
-		this.iterDuration = iterDuration;
+		this.iterDuration = Math.max(iterDuration, 1);
 
 		this.duration = this.iterDuration;
 		if (this.repeat > -1) {
@@ -60,7 +80,11 @@ export default class Timing {
 		if (this.state >= STATE_AFTER)
 			return;
 
-		this._updateProgress(this._progress + change / this.iterDuration);
+		this.seekMs(this._progress * this.iterDuration + change);
+	}
+
+	seekMs(ms) {
+		this._updateProgress(ms / this.iterDuration);
 	}
 
 	// should be between 0-1 if outside might change the state

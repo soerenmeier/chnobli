@@ -1,6 +1,7 @@
-// export class StaggerFunction {
-
-// }
+/**
+ * Staggering allows to have a different value for every target
+ * allowing to easely offset each target by a few pixels
+ */
 
 function isStagger(value) {
 	return typeof value === 'object' &&

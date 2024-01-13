@@ -1,11 +1,17 @@
 import { takeProp } from '../utils/internal.js';
 import Timing, {
 	parseEase, parseRepeat, parseAlternate, parseReversed,
-	STATE_RUNNING
+	STATE_RUNNING, STATE_AFTER, STATE_BEFORE, STATE_ENDED
 } from '../timing/timing.js';
 import Ticker from '../timing/ticker.js';
 import Animation from '../animation/animation.js';
 
+/**
+ * Timeline is the most versatile class
+ * 
+ * A timeline can contain multiple animation, ordered one after the other or
+ * offset.
+ */
 export default class Timeline {
 	/*
 	{
@@ -126,25 +132,26 @@ export default class Timeline {
 		const reversed = this.timing.reversed;
 		this.timing.reversed = false;
 
-		// now initialize all animtaions
+		// now initialize all animations
+		// initialization means
+		// we need to define which value should be used as the from and the to
+		// value
 		const startOrdered = this.entries.filter(e => e.type === 'animation');
 		startOrdered.sort((a, b) => a.start - b.start);
 
 		for (let i = 0; i < startOrdered.length; i++) {
 			const entry = startOrdered[i];
 
-			this.timing.seek(entry.start / this.timing.iterDuration);
+			this.timing.seekMs(entry.start);
 
-			const pos = this.timing.position * this.timing.iterDuration;
+			const pos = this.timing.positionMs();
 
 			// seek all previous and render
 			for (let y = 0; y < i; y++) {
 				const prevEntry = startOrdered[y];
 				const prevAnimation = prevEntry.value;
 
-				const p = (pos - prevEntry.start) / prevAnimation.duration;
-
-				prevAnimation.seek(p);
+				prevAnimation.seekMs(pos - prevEntry.start);
 				prevAnimation.render();
 			}
 
@@ -185,23 +192,18 @@ export default class Timeline {
 			active: []
 		};
 
-		const pos = this.timing.position * this.timing.iterDuration;
+		const pos = this.timing.positionMs();
 
 		for (const entry of this.entries) {
 			if (entry.type !== 'animation')
 				continue;
 
 			const animation = entry.value;
+			animation.seekMs(pos - entry.start);
 
-			const p = (pos - entry.start) / animation.duration;
-
-			const prevState = animation.timing.state;
-
-			animation.seek(p);
-
-			if (p > 1) {
+			if (animation.timing.state >= STATE_ENDED) {
 				this._renderQueue.passed.push(animation);
-			} else if (p < 0) {
+			} else if (animation.timing.state <= STATE_BEFORE) {
 				this._renderQueue.upcoming.push(animation);
 			} else {
 				this._renderQueue.active.push(animation);

@@ -3,6 +3,13 @@ import Timeline from '../timeline/public.js';
 import { parseDelay } from '../timing/timing.js';
 import { staggerMap } from '../stagger/stagger.js';
 
+/**
+ * The animation consist of a timeline with just one animation
+ * This allows to reuse a lot of code
+ * 
+ * ## Props
+ * 
+ */
 export default class PublicAnimation {
 	constructor(targets, props = {}) {
 		const autoplay = parseAutoplay(takeProp(props, 'autoplay', true));

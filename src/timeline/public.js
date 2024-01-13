@@ -1,6 +1,6 @@
 import { takeProp } from '../utils/internal.js';
 import Timeline from './timeline.js';
-import { STATE_BEFORE, STATE_AFTER } from '../timing/timing.js';
+import { STATE_START, STATE_ENDED } from '../timing/timing.js';
 import { callStagger } from '../stagger/stagger.js';
 import Events from '../utils/events.js';
 
@@ -11,6 +11,8 @@ const STATE_PLAYING = 2;
 export default class PublicTimeline {
 	constructor(props = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
+		if ('duration' in props)
+			throw new Error('a timeline does not accept a duration');
 		this._inner = new Timeline(props);
 
 		// 'start', 'end'
@@ -25,6 +27,11 @@ export default class PublicTimeline {
 		return this.add(targets, { ...props, duration: 0 }, offset);
 	}
 
+	/**
+	 * Add an animation to the timeline
+	 * 
+	 * offset can be staggered a number or a string `+=10`
+	 */
 	add(targets, props, offset = null) {
 		if (Array.from(targets).length === 0)
 			targets = [targets];
@@ -114,15 +121,21 @@ export default class PublicTimeline {
 		this._inner.init();
 
 		this._runningTicker = this._inner.ticker.add(change => {
-			if (this._inner.timing.state === STATE_BEFORE) {
-				this._events.trigger('start');
+
+			if (this._inner.timing.state >= STATE_ENDED) {
+				this._stopTicker();
+				return
 			}
 
-			if (this._inner.timing.state === STATE_AFTER) {
-				this._stopTicker();
-				this._events.trigger('end');
-				return;
-			}
+			// if (this._inner.timing.state <= STATE_START) {
+			// 	this._events.trigger('start');
+			// }
+
+			// if (this._inner.timing.state >= STATE_ENDED) {
+			// 	this._stopTicker();
+			// 	this._events.trigger('end');
+			// 	return;
+			// }
 
 			if (this._state === STATE_PLAYING)
 				this._inner.advance(change);
@@ -130,6 +143,11 @@ export default class PublicTimeline {
 			// todo when we add smooth seeks we need to update this
 
 			this._inner.render();
+
+			if (this._inner.timing.state >= STATE_ENDED) {
+				this._stopTicker();
+				return
+			}
 
 			// we rendered once let's stop
 			if (this._state === STATE_RENDER_ONCE) {

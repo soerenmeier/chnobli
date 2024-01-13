@@ -157,8 +157,13 @@ export class DomTarget extends Target {
 }
 
 export function newTarget(target) {
-	if (target instanceof HTMLElement || target instanceof SVGElement)
-		return new DomTarget(target);
+	if (typeof window === 'undefined') {
+		if (typeof target.__simulatedDom__ === 'function')
+			return new DomTarget(target);
+	} else {
+		if (target instanceof HTMLElement || target instanceof SVGElement)
+			return new DomTarget(target);
+	}
 
 	throw new Error('unknown target');
 }

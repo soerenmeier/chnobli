@@ -1,7 +1,12 @@
 import Value from '../utils/value.js';
 import { newTarget } from '../utils/target.js';
 
-
+/**
+ * The ticker is the main driver for all animations
+ * 
+ * it also manages all targets allowing to only call the dom api
+ * at the end of every frame
+ */
 export default class Ticker {
 	constructor() {
 		this._listeners = new Set;
@@ -13,12 +18,20 @@ export default class Ticker {
 	}
 
 	static global() {
+		// allow to define a test ticker
+		if (typeof globalThis !== 'undefined' && globalThis.chnobliTicker)
+			return globalThis.chnobliTicker;
+
 		if (typeof window === 'undefined')
-			return null;
+			throw new Error('can only be executed in a browser context');
 
 		if (typeof window.chnobliTicker === 'undefined')
 			window.chnobliTicker = new Ticker;
 		return window.chnobliTicker;
+	}
+
+	registerTarget(target) {
+		return this._targets.register(target);
 	}
 
 	add(fn) {
@@ -91,7 +104,7 @@ export default class Ticker {
 // 	}
 // }
 
-class GlobalTargets {
+export class GlobalTargets {
 	constructor() {
 		this._targets = new Map;
 	}
