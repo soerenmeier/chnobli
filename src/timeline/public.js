@@ -19,6 +19,7 @@ export default class PublicTimeline {
 		this._events = new Events;
 
 		this._state = STATE_PAUSED;
+		this._renderedOnce = false;
 		this._runningTicker = null;
 	}
 
@@ -85,6 +86,17 @@ export default class PublicTimeline {
 		this._stopTicker();
 	}
 
+	seekMs(ms) {
+		this._inner.init();
+
+		this._inner.seekMs(ms);
+
+		if (this._state !== STATE_PLAYING)
+			this._state = STATE_RENDER_ONCE;
+
+		this._startTicker();
+	}
+
 	// 0-1
 	seek(pos) {
 		this._inner.init();
@@ -123,6 +135,12 @@ export default class PublicTimeline {
 		this._runningTicker = this._inner.ticker.add(change => {
 
 			if (this._inner.timing.state >= STATE_ENDED) {
+				if (!this._renderedOnce) {
+					this._renderedOnce = true;
+					this._inner.render();
+				}
+
+				this._state = STATE_PAUSED;
 				this._stopTicker();
 				return
 			}
@@ -145,6 +163,7 @@ export default class PublicTimeline {
 			this._inner.render();
 
 			if (this._inner.timing.state >= STATE_ENDED) {
+				this._state = STATE_PAUSED;
 				this._stopTicker();
 				return
 			}
@@ -164,9 +183,4 @@ export default class PublicTimeline {
 		this._runningTicker.remove();
 		this._runningTicker = null;
 	}
-
-	// update() {
-	// 	console.log('render');
-	// 	this._inner.render();
-	// }
 }

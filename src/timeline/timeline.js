@@ -74,6 +74,12 @@ export default class Timeline {
 		this._updateTimings();
 	}
 
+	seekMs(ms) {
+		this.timing.seekMs(ms);
+
+		this._updateTimings();
+	}
+
 	seek(pos) {
 		this.timing.seek(pos);
 

@@ -35,25 +35,23 @@ export default class TestTicker {
 
 	/// max expects a number for how many ms the ticker should run
 	///
-	/// runs until the ticker ends this allows to run 
-	///
-	/// returns how many ms ran
+	/// runs until the ticker ends this allows to run
 	run(max = 3000, step = 1) {
 		if (!this.running)
-			return 0;
+			return true;
 
 		if (this._previousTick === null)
 			this.tick(0);
 
-		let i;
+		let i = 0;
 		const start = this._previousTick ?? 0;
 
 		for (i = 1; i <= max; i++) {
 			if (!this.tick(start + i))
-				break;
+				return true;
 		}
 
-		return i;
+		return false;
 	}
 
 	// elapsed in ms

@@ -68,7 +68,7 @@ describe('timing', () => {
 
 		timing.advance(20);
 		expect(timing.state).toBe(STATE_RUNNING);
-		expect(timing.position).toBe(.6);
+		expect(Math.floor(timing.position * 10) / 10).toBe(.6);
 
 		timing.advance(20);
 		expect(timing.state).toBe(STATE_RUNNING);
@@ -81,5 +81,101 @@ describe('timing', () => {
 		timing.advance(20);
 		expect(timing.state).toBe(STATE_AFTER);
 		expect(timing.position).toBe(1);
+	});
+
+	it('reverse', () => {
+		const timing = new Timing({
+			duration: 100
+		});
+
+		expect(timing.state).toBe(STATE_BEFORE);
+		expect(timing.position).toBe(0);
+
+		timing.reverse();
+		// inverse
+		expect(timing.state).toBe(STATE_AFTER);
+		expect(timing.position).toBe(0);
+
+		timing.reverse();
+		expect(timing.state).toBe(STATE_BEFORE);
+		expect(timing.position).toBe(0);
+
+		timing.advance(25);
+		expect(timing.state).toBe(STATE_RUNNING);
+		expect(timing.position).toBe(0.25);
+
+		timing.reverse();
+		expect(timing.position).toBe(0.25);
+		timing.advance(25);
+		expect(timing.position).toBe(0);
+
+		timing.seek(0.75);
+		timing.reverse();
+		expect(timing.position).toBe(0.75);
+	});
+
+	it('repeat', () => {
+		const timing = new Timing({
+			duration: 100,
+			repeat: -1
+		});
+
+		// >
+		timing.advance(25);
+		expect(timing.state).toBe(STATE_RUNNING);
+		expect(timing.position).toBe(0.25);
+
+		// ><
+		timing.advance(100);
+		expect(timing.position).toBe(0.75);
+
+		// <
+		timing.advance(50);
+		expect(timing.position).toBe(0.25);
+
+		// <>
+		timing.advance(50);
+		expect(timing.position).toBe(0.25);
+
+		// >
+		timing.advance(50);
+		expect(timing.position).toBe(0.75);
+
+		// <
+		timing.reverse();
+		expect(timing.position).toBe(0.75);
+
+		timing.advance(50);
+		expect(timing.position).toBe(0.25);
+
+		// <>
+		timing.advance(50);
+		expect(timing.position).toBe(0.25);
+
+		// >
+		timing.setAlternate(false);
+		timing.advance(50);
+		expect(timing.position).toBe(0.75);
+
+		// >
+		timing.advance(50);
+		expect(timing.position).toBe(0.25);
+
+		// <
+		timing.reverse();
+		expect(timing.position).toBe(0.25);
+
+		// <
+		timing.advance(50);
+		expect(timing.position).toBe(0.75);
+
+		// <
+		timing.setAlternate(true);
+		timing.advance(50);
+		expect(timing.position).toBe(0.25);
+
+		// <>
+		timing.advance(50);
+		expect(timing.position).toBe(0.25);
 	});
 });

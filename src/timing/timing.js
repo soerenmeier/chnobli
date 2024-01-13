@@ -42,6 +42,9 @@ export default class Timing {
 	}
 	*/
 	constructor(props) {
+		// these vars are only readonly
+		// use functions to update them
+
 		this.setDuration(props.duration);
 		this.ease = props.ease ?? (t => t);
 		this.repeat = props.repeat ?? 0;
@@ -52,7 +55,7 @@ export default class Timing {
 		this.state = STATE_BEFORE;
 
 		// progress does not take alternation into account and has no easing
-		// this always increments up until it overflows
+		// this always increments up
 		this._progress = 0;
 
 		// scrub
@@ -80,7 +83,7 @@ export default class Timing {
 		if (this.state >= STATE_AFTER)
 			return;
 
-		this.seekMs(this._progress * this.iterDuration + change);
+		this._updateProgress(this._progress + change / this.iterDuration);
 	}
 
 	seekMs(ms) {
@@ -97,19 +100,42 @@ export default class Timing {
 		}
 	}
 
+	setAlternate(alternate) {
+		if (this.alternate == alternate)
+			return;
+
+		// make sure the reversed is updated according to the current inversion
+		this.reversed = alternate == this._shouldInvert();
+		this.alternate = alternate;
+	}
+
 	reverse() {
 		this.reversed = !this.reversed;
 
-		let p = Math.floor(this._progress);
-		p = p + (1 - (this._progress - p));
+		let p;
+		if (this.state <= STATE_BEFORE) {
+			p = 2;
+		} else if (this.state >= STATE_AFTER) {
+			p = -1;
+		// check if the values should be reversed
+		} else if (this.reversed != this._shouldInvert()) {
+			p = Math.floor(this._progress);
+			p = p + (1 - (this._progress - p));
+		} else {
+			p = this._progress;
+		}
 
 		this._updateProgress(p);
+	}
+
+	_shouldInvert() {
+		return this.alternate && Math.floor(this._progress) % 2 === 1;
 	}
 
 	_updateProgress(newProgress) {
 		this._progress = newProgress;
 
-		// since infite repeat can never end let's ignore it
+		// since infinite repeat can never end let's ignore it
 		if (this.repeat > -1) {
 			const end = this.repeat + 1;
 			if (this._progress > end) {
@@ -132,21 +158,12 @@ export default class Timing {
 			this.state = STATE_START;
 		}
 
-
-		let reversed = this.reversed;
-
-		// calc if we are in a reversed iteration or not
-		if (this.alternate) {
-			let shouldInverse = Math.floor(this._progress) % 2 === 1;
-			if (shouldInverse)
-				reversed = !reversed;
-		}
-
 		// now calculate the position
-
 		this.position = this._progress % 1;
 
-		if (reversed)
+		// calc if we are in a reversed iteration or not
+		// and we are we should invert the position
+		if (this.reversed != this._shouldInvert())
 			this.position = 1 - this.position;
 
 		this.position = this.ease(this.position);
