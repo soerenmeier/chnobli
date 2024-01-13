@@ -133,8 +133,8 @@ export default class Timeline {
 		// console.log(this.entries.map(e => e.value._props[0]));
 	}
 
-	_initAnimations() {
-		// we don't won't to have a reversed timing
+	_initAnimations(reset = false) {
+		// we don't wan't to have a reversed timing
 		const reversed = this.timing.reversed;
 		this.timing.reversed = false;
 
@@ -161,7 +161,7 @@ export default class Timeline {
 				prevAnimation.render();
 			}
 
-			entry.value.init();
+			entry.value.init(reset);
 		}
 
 		this.timing.seek(-1);
@@ -220,6 +220,22 @@ export default class Timeline {
 				this._renderQueue.active.push(animation);
 			}
 		}
+	}
+
+	update() {
+		const pos = this.timing.savePosition();
+		this.timing.seek(-1);
+		this._updateTimings();
+		this.render();
+		this.ticker.applyTargets();
+		// we now have removed every style we set
+		// we should be able to recalculate everything now
+		this._initAnimations(true);
+
+		this.timing.restorePosition(pos);
+		this._updateTimings();
+		this.render();
+		this.ticker.applyTargets();
 	}
 }
 

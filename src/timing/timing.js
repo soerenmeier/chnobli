@@ -100,6 +100,16 @@ export default class Timing {
 		}
 	}
 
+	savePosition() {
+		return {
+			progress: this._progress
+		};
+	}
+
+	restorePosition(pos) {
+		this._updateProgress(pos.progress);
+	}
+
 	setAlternate(alternate) {
 		if (this.alternate == alternate)
 			return;

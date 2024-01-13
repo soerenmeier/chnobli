@@ -122,6 +122,9 @@ export class DomTarget extends Target {
 			const style = this._extFns.getComputedStyle(this.target);
 			const styleV = style[name];
 
+			if (typeof styleV === 'undefined' || styleV === null)
+				return styleV;
+
 			try {
 				const value = Value.parse(styleV);
 				this.styleValues.set(name, value);

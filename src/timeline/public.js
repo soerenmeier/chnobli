@@ -149,6 +149,13 @@ export default class PublicTimeline {
 	}
 
 	/**
+	 * Recalculates all values this should be called for example after a resize
+	 */
+	update() {
+		this._inner.update();
+	}
+
+	/**
 	 * Returns wether the timeline is set to reversed
 	 */
 	isReversed() {

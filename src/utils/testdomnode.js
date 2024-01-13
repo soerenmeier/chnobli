@@ -1,5 +1,7 @@
 export default class TestDomNode {
 	constructor() {
+		this.computedStyle = {};
+
 		this.style = {
 			setProperty: (k, v) => {
 				this.style[k] = v;
@@ -10,8 +12,12 @@ export default class TestDomNode {
 		};
 	}
 
+	syncStyles() {
+		this.computedStyle = { ...this.style };
+	}
+
 	static getComputedStyle(el) {
-		return el.style;
+		return el.computedStyle;
 	}
 
 	__simulatedDom__() {}

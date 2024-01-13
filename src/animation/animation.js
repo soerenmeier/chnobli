@@ -60,8 +60,8 @@ export default class Animation {
 		return this.timing.duration;
 	}
 
-	init() {
-		if (this._initialized)
+	init(reset = false) {
+		if (this._initialized && !reset)
 			return;
 		this._initialized = true;
 
