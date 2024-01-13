@@ -23,6 +23,10 @@ export default class PublicTimeline {
 		this._runningTicker = null;
 	}
 
+	/**
+	 * Set's properties
+	 * offset can be staggered, a number, a label or a string `+=10`
+	 */
 	set(targets, props, offset = null) {
 		// for the moment let's just add as usual but set the duration to 0
 		return this.add(targets, { ...props, duration: 0 }, offset);
@@ -31,7 +35,7 @@ export default class PublicTimeline {
 	/**
 	 * Add an animation to the timeline
 	 * 
-	 * offset can be staggered a number or a string `+=10`
+	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
 	add(targets, props, offset = null) {
 		if (Array.from(targets).length === 0)
@@ -60,12 +64,20 @@ export default class PublicTimeline {
 		return this;
 	}
 
+	/**
+	 * Adds a label at to the current nOffse
+	 *
+	 * This label can then be used in offsets
+	 */
 	label(label, offset = null) {
 		this._inner.label(label, offset);
 
 		return this;
 	}
 
+	/**
+	 * Starts to play the timeline if it hasn't started
+	 */
 	play() {
 		if (this._state === STATE_PLAYING)
 			return;
@@ -77,6 +89,9 @@ export default class PublicTimeline {
 		return this;
 	}
 
+	/**
+	 * Pause the timeline at the current position
+	 */
 	pause() {
 		if (this._state === STATE_PAUSED)
 			return;
@@ -86,6 +101,9 @@ export default class PublicTimeline {
 		this._stopTicker();
 	}
 
+	/**
+	 * Seeks to a position in the timeline
+	 */
 	seekMs(ms) {
 		this._inner.init();
 
@@ -97,7 +115,11 @@ export default class PublicTimeline {
 		this._startTicker();
 	}
 
-	// 0-1
+	/**
+	 * Seeks to a normalized position in the timeline
+	 * 
+	 * @param pos = number between 0 and 1
+	 */
 	seek(pos) {
 		this._inner.init();
 
@@ -109,19 +131,53 @@ export default class PublicTimeline {
 		this._startTicker();
 	}
 
+	/**
+	 * Resets the current timeline to the start
+	 * without changing anything
+	 */
 	reset() {
 		this._inner.seek(0);
 	}
 
+	/**
+	 * Resets every used prop to it's previous value
+	 */
+	resetProps() {
+		this._inner.seek(-1);
+		this._inner.render();
+		this._inner.ticker.applyTargets();
+	}
+
+	/**
+	 * Returns wether the timeline is set to reversed
+	 */
+	isReversed() {
+		return this._inner.timing.reversed;
+	}
+
+	/**
+	 * Set's the timeline to a specific direction
+	 */
+	setReversed(reversed) {
+		if (this.isReversed() == reverse)
+			return;
+		this.reverse();
+	}
+
+	/**
+	 * Reverses the order of the current timeline
+	 */
 	reverse() {
 		this._inner.timing.reverse();
 	}
 
+	// not worknig
 	// start, update, end -> () => // remove Event
 	on(event, fn) {
 		return this._events.add(event, fn);
 	}
 
+	// not wroking
 	onPromise(event) {
 		return this._events.wait(event);
 	}

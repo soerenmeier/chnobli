@@ -34,6 +34,10 @@ export default class Ticker {
 		return this._targets.register(target);
 	}
 
+	applyTargets() {
+		return this._targets.apply();
+	}
+
 	add(fn) {
 		this._listeners.add(fn);
 

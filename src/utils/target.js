@@ -54,8 +54,15 @@ export default class Target {
 }
 
 export class DomTarget extends Target {
-	constructor(target) {
+	/**
+	 * target a dom node or svg
+	 * 
+	 * extFns: {getComputedStyle}
+	 */
+	constructor(target, extFns) {
 		super(target);
+
+		this._extFns = extFns;
 
 		// for the moment 
 
@@ -112,7 +119,7 @@ export class DomTarget extends Target {
 
 		if (typeof v === 'undefined' || v === null) {
 			// let's try to get it from the dom
-			const style = getComputedStyle(this.target);
+			const style = this._extFns.getComputedStyle(this.target);
 			const styleV = style[name];
 
 			try {
@@ -136,7 +143,7 @@ export class DomTarget extends Target {
 	}
 
 	removeStyleValue(name) {
-		this.styleValues.delete(name);
+		this.styleValues.set(name, undefined);
 	}
 
 	apply() {
@@ -146,7 +153,13 @@ export class DomTarget extends Target {
 
 		// style
 		for (const [k, v] of this.styleValues.entries()) {
-			this.target.style[k] = v;
+			if (v === undefined) {
+				this.target.style.removeProperty(k);
+				// is this a problem?
+				this.styleValues.delete(k);
+			} else {
+				this.target.style.setProperty(k, v.toString());
+			}
 		}
 
 		// values
@@ -159,10 +172,12 @@ export class DomTarget extends Target {
 export function newTarget(target) {
 	if (typeof window === 'undefined') {
 		if (typeof target.__simulatedDom__ === 'function')
-			return new DomTarget(target);
+			return new DomTarget(target, {
+				getComputedStyle: target.__getComputedStyle__()
+			});
 	} else {
 		if (target instanceof HTMLElement || target instanceof SVGElement)
-			return new DomTarget(target);
+			return new DomTarget(target, { getComputedStyle });
 	}
 
 	throw new Error('unknown target');

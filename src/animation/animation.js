@@ -141,6 +141,7 @@ class PropertyAnimation {
 	}
 
 	restoreBefore(target) {
+		// todo this might not be enough
 		this.prop.removeValue(target);
 	}
 

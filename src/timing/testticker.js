@@ -16,6 +16,10 @@ export default class TestTicker {
 		return this._targets.register(target);
 	}
 
+	applyTargets() {
+		return this._targets.apply();
+	}
+
 	add(fn) {
 		this._listeners.add(fn);
 
