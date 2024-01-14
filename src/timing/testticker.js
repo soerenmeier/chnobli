@@ -3,7 +3,7 @@ import { GlobalTargets } from './ticker.js';
 export default class TestTicker {
 	constructor() {
 		this._listeners = new Set;
-		this._targets = new GlobalTargets;
+		this.targets = new GlobalTargets;
 
 		this.running = false;
 
@@ -13,11 +13,15 @@ export default class TestTicker {
 	}
 
 	registerTarget(target) {
-		return this._targets.register(target);
+		return this.targets.register(target);
+	}
+
+	unregisterTarget(target) {
+		return this.targets.unregister(target);
 	}
 
 	applyTargets() {
-		return this._targets.apply();
+		return this.targets.apply();
 	}
 
 	add(fn) {
@@ -81,7 +85,7 @@ export default class TestTicker {
 			});
 		}
 
-		this._targets.apply();
+		this.targets.apply();
 
 		if (this._listeners.size === 0) {
 			this.running = false;

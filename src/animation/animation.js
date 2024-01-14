@@ -90,6 +90,14 @@ export default class Animation {
 			prop.render(pos, this.target);
 		}
 	}
+
+	destroy() {
+		for (const prop of this._props) {
+			prop.restoreBefore(this.target);
+		}
+
+		this._ticker.unregisterTarget(this.target.target);
+	}
 }
 
 function maybeResponsiveValue(prop, val) {

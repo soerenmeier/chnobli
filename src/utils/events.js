@@ -32,4 +32,8 @@ export default class Events {
 			return;
 		list.trigger(...args);
 	}
+
+	destroy() {
+		this.listeners = new Map;
+	}
 }

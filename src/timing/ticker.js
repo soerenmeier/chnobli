@@ -33,6 +33,10 @@ export default class Ticker {
 		return this._targets.register(target);
 	}
 
+	unregisterTarget(target) {
+		return this._targets.unregister(target);
+	}
+
 	applyTargets() {
 		return this._targets.apply();
 	}
@@ -109,22 +113,42 @@ export default class Ticker {
 
 export class GlobalTargets {
 	constructor() {
+		// {target, ref}
 		this._targets = new Map;
 	}
 
 	register(target) {
 		let storedTarget = this._targets.get(target);
 		if (!storedTarget) {
-			storedTarget = newTarget(target);
+			storedTarget = {
+				target: newTarget(target),
+				ref: 0
+			};
 			this._targets.set(target, storedTarget);
 		}
+		storedTarget.ref += 1;
 
-		return storedTarget;
+		return storedTarget.target;
+	}
+
+	unregister(target) {
+		const storedTarget = this._targets.get(target);
+		storedTarget.ref -= 1;
 	}
 
 	apply() {
-		for (const target of this._targets.values()) {
+		for (const storedTarget of this._targets.values()) {
+			const { target, ref } = storedTarget;
 			target.apply();
+
+			if (ref <= 0)
+				this._targets.delete(target.target);
 		}
 	}
+
+	size() {
+		return this._targets.size;
+	}
+
+	// todo we should probly run some kind of gc
 }

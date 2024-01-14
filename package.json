@@ -7,7 +7,7 @@
 		"docs": "jsdoc -c jsdoc.conf.json",
 		"check": "tsc",
 		"lint": "eslint ./src",
-		"test": "vitest"
+		"test": "node --expose-gc ./node_modules/.bin/vitest"
 	},
 	"repository": {
 		"type": "git",

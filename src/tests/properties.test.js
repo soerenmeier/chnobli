@@ -3,6 +3,7 @@ import TestTicker from '../timing/testticker.js';
 import TestResponsiveEvent from '../responsive/testevent.js';
 import { animate, timeline } from '../chnobli.js';
 import { el } from '../utils/testdomnode.js';
+import { timeout } from 'fire/util.js';
 
 describe('properties', () => {
 	it('resetprops', () => {
@@ -26,25 +27,49 @@ describe('properties', () => {
 		expect(div.style.width).toBe(undefined);
 	});
 
-	it('destroy', () => {
+	it('destroy', async () => {
 		const ticker = new TestTicker;
 
-		const div = el();
-		const tl = timeline()
-			.add(div, {
-				x: 100,
-				width: 100,
-				duration: 10
-			})
-			.play();
+		function runDestroyTest(cleanup, ticker) {
 
-		ticker.run();
-		expect(div.style.transform).toBe('translateX(100.000px)');
-		expect(div.style.width).toBe('100.000px');
+			const div = el();
+			cleanup.register(div, 'div');
+			expect(ticker.targets.size()).toBe(0);
+			const tl = timeline()
+				.add(div, {
+					x: 100,
+					width: 100,
+					duration: 10
+				})
+				.play();
 
-		tl.resetProps();
-		expect(div.style.transform).toBe('');
-		expect(div.style.width).toBe(undefined);
+			expect(ticker.targets.size()).toBe(1);
+
+			ticker.run();
+			expect(div.style.transform).toBe('translateX(100.000px)');
+			expect(div.style.width).toBe('100.000px');
+
+			tl.destroy();
+			expect(div.style.transform).toBe('');
+			expect(div.style.width).toBe(undefined);
+			expect(ticker.targets.size()).toBe(0);
+		}
+
+		let resolveCleanupProm;
+		let cleanupProm = new Promise(resolve => resolveCleanupProm = resolve);
+		const cleanup = new FinalizationRegistry(key => {
+			resolveCleanupProm(key);
+		});
+
+		runDestroyTest(cleanup, ticker);
+
+		global.gc();
+
+		const res = await Promise.race([
+			cleanupProm,
+			timeout(2000).then(() => 'timedout')
+		]);
+		expect(res).toBe('div');
 	});
 
 	it('update timeline', () => {

@@ -211,6 +211,17 @@ export default class PublicTimeline {
 		return this._events.wait(event);
 	}
 
+	/**
+	 * Destroys this timeline and resets all props
+	 */
+	destroy() {
+		this._stopTicker();
+		this._inner.destroy();
+		this._events.destroy();
+		this._responsiveEvent?.remove();
+		this._inner = null;
+	}
+
 	_startTicker() {
 		if (this._runningTicker)
 			return;

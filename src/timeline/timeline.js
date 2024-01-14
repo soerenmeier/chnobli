@@ -240,6 +240,19 @@ export default class Timeline {
 		this.render();
 		this.ticker.applyTargets();
 	}
+
+	destroy() {
+		for (const entry of this.entries) {
+			if (entry.type !== 'animation')
+				continue;
+
+			const animation = entry.value;
+			animation.destroy();
+		}
+
+		this.entries = [];
+		this.ticker.applyTargets();
+	}
 }
 
 
