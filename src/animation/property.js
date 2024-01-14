@@ -23,14 +23,13 @@ export default class Property {
 		if (!to)
 			to = this.getValue(target);
 
-		if (!from || from.unit !== to.unit) {
-			throw new Error(
-				'property: ' + this.name + ' ' + from.unit + ' != ' + to.unit
-			);
-		}
+		if (!from || !to)
+			throw new Error('could not determine from or to value');
 
-		this.from = from;
-		this.to = to;
+		const [nFrom, nTo] = target.unifyValues(this.name, from, to);
+
+		this.from = nFrom;
+		this.to = nTo;
 	}
 
 	/**
@@ -57,9 +56,6 @@ export default class Property {
 
 	/**
 	 * Pos needs to be between 0 and 1
-	 * 
-	 * From and to will be values returned from getvalue or defaultValue
-	 * and validated by validateFromTo
 	 */
 	interpolate(pos) {
 		const dif = this.to.num - this.from.num;
@@ -87,9 +83,6 @@ export class Transform extends Property {
 			this._defUnit = 'px';
 			this._defVal = 0;
 			this._transformFunction = 'translate' + name.toUpperCase();
-		// } else if (name === 'rotation') {
-		// 	this.defUnit = 'deg';
-		// 	this.defVal = 0;
 		} else if (name.startsWith('scale')) {
 			this._defUnit = null;
 			this._defVal = 1;
@@ -104,7 +97,7 @@ export class Transform extends Property {
 	}
 
 	parseValue(val) {
-		return Value.parse(val, this._defUnit);
+		return Value.parse(val);
 	}
 
 	defaultValue() {
@@ -120,7 +113,10 @@ export class Transform extends Property {
 	}
 
 	setValue(target, val) {
-		return target.setTransformValue(this._transformFunction, val);
+		return target.setTransformValue(
+			this._transformFunction,
+			val.withDefaultUnit(this._defUnit)
+		);
 	}
 
 	removeValue(target) {
@@ -141,8 +137,8 @@ export class TransformXY extends Property {
 		const { x, y } = val;
 
 		return {
-			x: Value.parse(x, 'px'),
-			y: Value.parse(y, 'px')
+			x: Value.parse(x),
+			y: Value.parse(y)
 		};
 	}
 
@@ -166,8 +162,8 @@ export class TransformXY extends Property {
 	}
 
 	setValue(target, val) {
-		target.setTransformValue('translateX', val.x);
-		target.setTransformValue('translateY', val.y);
+		target.setTransformValue('translateX', val.x.withDefaultUnit('px'));
+		target.setTransformValue('translateY', val.y.withDefaultUnit('px'));
 	}
 
 	removeValue(target) {
@@ -198,9 +194,7 @@ export class StyleProp extends Property {
 	}
 
 	parseValue(val) {
-		// maybe keep it unitless as long as possible, maybe until we need to
-		// write it
-		return Value.parse(val, this.unit);
+		return Value.parse(val);
 	}
 
 	defaultValue() {
@@ -216,7 +210,7 @@ export class StyleProp extends Property {
 	}
 
 	setValue(target, val) {
-		return target.setStyleValue(this.name, val);
+		return target.setStyleValue(this.name, val.withDefaultUnit(this.unit));
 	}
 
 	removeValue(target) {

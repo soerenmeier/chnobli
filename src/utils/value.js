@@ -1,6 +1,6 @@
-const UNITS = ['px', 'vw', 'vh', 'rem', 'em', 'rem', 'deg', 'rad'];
+const UNITS = ['px', 'vw', 'vh', 'rem', 'em', 'rem', 'deg', 'rad', '%'];
 
-const REGEX = /^(\d*\.?\d*)(\w*)$/;
+const REGEX = /^(\d*\.?\d*)(\w*|%)$/;
 
 export default class Value {
 	constructor(num, unit = null) {
@@ -8,9 +8,9 @@ export default class Value {
 		this.unit = unit;
 	}
 
-	static parse(v, defUnit = null) {
+	static parse(v) {
 		if (typeof v === 'number') {
-			return new Value(v, defUnit);
+			return new Value(v);
 		}
 
 		const [_v, num, unit] = REGEX.exec(v);
@@ -30,6 +30,14 @@ export default class Value {
 
 	cloneAdd(add) {
 		return new Value(this.num + add, this.unit);
+	}
+
+	cloneMul(mul) {
+		return new Value(this.num * mul, this.unit);
+	}
+
+	withDefaultUnit(unit) {
+		return new Value(this.num, this.unit ?? unit);
 	}
 
 	toString() {

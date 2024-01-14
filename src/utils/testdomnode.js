@@ -1,3 +1,5 @@
+let ROOT_ELEMENT = null;
+
 export default class TestDomNode {
 	constructor() {
 		this.computedStyle = {};
@@ -35,11 +37,21 @@ export default class TestDomNode {
 
 	__simulatedDom__() {}
 
-	__getComputedStyle__() {
+	__getComputedStyleFn__() {
 		return TestDomNode.getComputedStyle;
+	}
+
+	__getRootElementFn__() {
+		return getRootElement;
 	}
 }
 
 export function el() {
 	return new TestDomNode();
+}
+
+export function getRootElement() {
+	if (!ROOT_ELEMENT)
+		ROOT_ELEMENT = el();
+	return ROOT_ELEMENT;
 }
