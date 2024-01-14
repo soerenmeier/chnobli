@@ -209,9 +209,7 @@ export class DomTarget extends Target {
 			case 'px':
 				return value;
 			case 'rem':
-				const rem = this._getRem();
-
-				return new Value(value.num / rem, 'px');
+				return new Value(value.num / this._getRem(), 'px');
 			default:
 				throw new Error(
 					`cannot convert ${name} from ${value.unit} to px`
@@ -224,16 +222,16 @@ export class DomTarget extends Target {
 		if (value.num === 0)
 			return new Value(0, unit);
 
+		let v;
 		switch (unit) {
 			case 'px':
 				return value;
 
 			case 'rem':
-				const rem = this._getRem();
-				return new Value(rem * value.num, 'rem');
+				return new Value(this._getRem() * value.num, 'rem');
 
 			case '%':
-				const v = this.getStyleValue(name);
+				v = this.getStyleValue(name);
 				if (v.unit !== 'px')
 					throw new Error('cannot get style value of ' + name);
 
