@@ -17,7 +17,8 @@ export const STATE_AFTER = 4;
  * 
  * 
  * Timing works the same as in after effects
- * duration must be at least 1ms
+ * if the duration is not at least 1ms the position is always 1 and either
+ * STATE_BEFORE or STATE_AFTER
  * 
  * if the duration is 1ms seek 0 or 1 will always result in position 1
  * because it is like one frame, so it's an image
@@ -50,7 +51,7 @@ export default class Timing {
 		this.alternate = props.alternate ?? true;
 		this.reversed = props.reversed ?? false;
 
-		this.position = 0;
+		this.position = this.duration > 0 ? 0 : 1;
 		this.state = STATE_BEFORE;
 
 		// progress does not take alternation into account and has no easing
@@ -83,9 +84,9 @@ export default class Timing {
 		return this.position * this.iterDuration + 1;
 	}
 
-	/// iterDuration will always be >=1
+	/// iterDuration should always be >=0
 	setDuration(iterDuration) {
-		this.iterDuration = Math.max(iterDuration, 1);
+		this.iterDuration = iterDuration;
 
 		this.duration = this.iterDuration;
 		if (this.repeat > -1) {
@@ -101,10 +102,20 @@ export default class Timing {
 		if (this.state >= STATE_AFTER)
 			return;
 
+		if (this.iterDuration <= 0) {
+			this._updateProgress(1);
+			return;
+		}
+
 		this._updateProgress(this._progress + change / this.iterDuration);
 	}
 
 	seekMs(ms) {
+		if (this.iterDuration <= 0) {
+			this._updateProgress(Math.sign(ms));
+			return;
+		}
+
 		this._updateProgress(ms / this.iterDuration);
 	}
 
@@ -167,6 +178,21 @@ export default class Timing {
 	}
 
 	_updateProgress(newProgress) {
+		// if duration is zero the position is always 1
+		// and the state is either BEFORE or AFTER
+		if (this.iterDuration <= 0) {
+			newProgress = Math.sign(newProgress);
+			this._progress = newProgress;
+			this.position = 1;
+
+			if (newProgress < 0)
+				this.state = STATE_BEFORE;
+			else
+				this.state = STATE_AFTER;
+
+			return;
+		}
+
 		this._progress = newProgress;
 
 		// since infinite repeat can never end let's ignore it
@@ -220,10 +246,9 @@ export function parseDuration(dur) {
 	if (typeof dur !== 'number')
 		throw new Error('duration is not a number');
 
-	// convert s to ms
 	dur = Math.round(dur);
 
-	return Math.max(dur, 1);
+	return Math.max(dur, 0);
 }
 
 export function parseEase(ease) {

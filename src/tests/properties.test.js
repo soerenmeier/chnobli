@@ -125,16 +125,12 @@ describe('properties', () => {
 
 		let windowAspectRatio;
 		const resp1 = responsive(() => {
-			console.log('reso call');
 			windowAspectRatio = windowWidth / 9;
 		});
 
 		const tl = timeline()
 			.add(div, {
-				width: responsive(e => {
-					console.log('width resp');
-					return 20 * windowAspectRatio
-				}),
+				width: responsive(e => 20 * windowAspectRatio),
 				duration: 10
 			})
 			.addResponsive(resp1);

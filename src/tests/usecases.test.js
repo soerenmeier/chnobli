@@ -22,11 +22,16 @@ describe('usecases', () => {
 			.add(ctn, {
 				maxHeight: responsive(el => el.scrollHeight),
 				duration: 100
-			}, 0);
+			});
+
+		tl.play();
+		ticker.run(1);
+		expect(ctn.style.maxHeight).toBe('1.000px');
+		expect(itm.classList.contains('open')).toBe(true);
 
 		// // on click
 		tl.play();
-		ticker.run(5);
+		ticker.run(4);
 		expect(ctn.style.maxHeight).toBe('5.000px');
 		expect(itm.classList.contains('open')).toBe(true);
 

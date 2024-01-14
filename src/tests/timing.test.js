@@ -4,9 +4,55 @@ import Timing, {
 } from '../timing/timing.js';
 
 describe('timing', () => {
-	it('short timing', () => {
+	it('zero duration', () => {
+		// if duration is zero the position is always 1
+		// and the state is either BEFORE or AFTER
 		const timing = new Timing({
 			duration: 0
+		});
+		expect(timing.duration).toBe(0);
+		expect(timing.state).toBe(STATE_BEFORE);
+
+		timing.seek(-1);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_BEFORE);
+
+		timing.seek(0);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_AFTER);
+
+		timing.seek(.5);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_AFTER);
+
+		timing.seek(1);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_AFTER);
+
+		timing.seek(2);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_AFTER);
+
+		timing.seekMs(-1);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_BEFORE);
+
+		timing.seekMs(0);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_AFTER);
+
+		timing.seekMs(.5);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_AFTER);
+
+		timing.seekMs(1);
+		expect(timing.position).toBe(1);
+		expect(timing.state).toBe(STATE_AFTER);
+	});
+
+	it('short timing', () => {
+		const timing = new Timing({
+			duration: 1
 		});
 		expect(timing.duration).toBe(1);
 		expect(timing.state).toBe(STATE_BEFORE);

@@ -29,6 +29,33 @@ describe('timeline', () => {
 
 		ticker.run();
 		expect(target.style.transform).toBe('translateX(10.000px)');
+
+		tl.reverse();
+		tl.play();
+		ticker.run();
+		expect(target.style.transform).toBe('');
+	});
+
+	it('timeline set', () => {
+		const ticker = new TestTicker;
+
+		const target = el();
+		const tl = timeline()
+			.set(target, {
+				x: 10
+			});
+		tl.play();
+
+		ticker.run(0);
+		expect(target.style.transform).toBe('translateX(10.000px)');
+
+		ticker.run();
+		expect(target.style.transform).toBe('translateX(10.000px)');
+
+		tl.reverse();
+		tl.play();
+		ticker.run();
+		expect(target.style.transform).toBe('translateX(10.000px)');
 	});
 
 	it('offsetTimeline timeline', () => {
