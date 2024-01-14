@@ -37,17 +37,81 @@ export default class PublicAnimation {
 		this._tl.pause();
 	}
 
-	// 0-1
+	/**
+	 * Seeks to a position in the timeline
+	 */
+	seekMs(ms) {
+		this._tl.seekMs(ms);
+	}
+
+	/**
+	 * Seeks to a normalized position in the timeline
+	 * 
+	 * @param pos = number between 0 and 1
+	 */
 	seek(pos) {
 		this._tl.seek(pos);
 	}
 
+	/**
+	 * Resets the current timeline to the start
+	 * without changing anything
+	 */
 	reset() {
 		this._tl.reset();
 	}
 
+	/**
+	 * Resets every used prop to it's previous value
+	 */
+	resetProps() {
+		this._tl.resetProps();
+	}
+
+	/**
+	 * Recalculates all values this should be called for example after a resize
+	 */
+	update() {
+		this._tl.update();
+	}
+
+
+	/**
+	 * Returns wether the timeline is set to reversed
+	 */
+	isReversed() {
+		return this._tl.isReversed();
+	}
+
+	/**
+	 * Set's the timeline to a specific direction
+	 */
+	setReversed(reversed) {
+		this._tl.setReversed(reversed);
+	}
+
+	/**
+	 * Reverses the order of the current timeline
+	 */
 	reverse() {
 		this._tl.reverse();
+	}
+
+	on(event, fn) {
+		return this._tl.on(event, fn);
+	}
+
+	// not wroking
+	onPromise(event) {
+		return this._tl.onPromise(event);
+	}
+
+	/**
+	 * Destroys this timeline and resets all props
+	 */
+	destroy() {
+		this._tl.destroy();
+		this._tl = null;
 	}
 }
 
