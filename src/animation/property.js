@@ -4,8 +4,37 @@ export default class Property {
 	constructor(name) {
 		// this is the property name
 		this.name = name;
+
+		this.from = null;
+		this.to = null;
 	}
 
+	allowsValueFn() {
+		return true;
+	}
+
+	/**
+	 * From or to might be null
+	 */
+	init(target, from, to) {
+		if (!from)
+			from = this.getValue(target);
+
+		if (!to)
+			to = this.getValue(target);
+
+		if (!from.unit || from.unit !== to.unit)
+			throw new Error(from.unit + ' != ' + to.unit);
+
+		this.from = from;
+		this.to = to;
+	}
+
+	/**
+	 * Gets called with the value of a property
+	 * 
+	 * For examply during initializiation
+	 */
 	parseValue(val) {
 		return Value.parse(val);
 	}
@@ -21,6 +50,18 @@ export default class Property {
 			return this.defaultValue();
 
 		return val;
+	}
+
+	/**
+	 * Pos needs to be between 0 and 1
+	 * 
+	 * From and to will be values returned from getvalue or defaultValue
+	 * and validated by validateFromTo
+	 */
+	interpolate(pos) {
+		const dif = this.to.num - this.from.num;
+
+		return this.from.cloneAdd(pos * dif);
 	}
 
 	setValue(target, val) {
@@ -180,6 +221,131 @@ export class StyleProp extends Property {
 	}
 }
 
+/**
+ * In most cases we wan't to add the class at pos 0
+ * and in reverse remove it at pos 0
+ * 
+ * so this behaviour should be in str|{ to }
+ * 
+ * If we wan't to remove the class at pos 1
+ * and in reverse add it at pos 1
+ * we do it in { from }
+ */
+export class ClassNameProp extends Property {
+	constructor(name) {
+		super(name);
+	}
+
+	allowsValueFn() {
+		return false;
+	}
+
+	init(target, from, to) {
+		this.from = from ?? [];
+		this.to = to ?? [];
+
+		this.preStates = new Map;
+		this.states = new Map;
+
+		for (const cls of [...this.from, ...this.to]) {
+			const exists = target.hasClass(cls);
+			this.preStates.set(cls, exists);
+			this.states.set(cls, exists);
+		}
+	}
+
+	parseValue(val) {
+		if (Array.isArray(val)) {
+			return val.map(v => {
+				if (typeof v !== 'string')
+					throw new Error('cls only accepts strings[]');
+
+				return v;
+			});
+		}
+
+		if (typeof val === 'string') {
+			return [val];
+		}
+
+		throw new Error('cls only accepts strings and strings[]');
+	}
+
+	defaultValue() {
+		throw new Error('unused');
+	}
+
+	getValue(_target) {
+		throw new Error('unused');
+	}
+
+	interpolate(pos) {
+		/**
+		 * ## to
+		 * add the class at pos >0
+		 * and in reverse remove it at pos 0
+		 * 
+		 * ## from
+		 * remove the class at pos <1
+		 * and in reverse add it at pos 1
+		*/
+
+		let obj = {
+			add: [],
+			remove: []
+		};
+
+		if (pos <= 0) {
+			obj.remove = this.to;
+		} else {
+			obj.add = this.to;
+		}
+
+		if (pos >= 1) {
+			obj.remove = this.from;
+		} else {
+			obj.add = [...obj.add, ...this.from];
+		}
+
+		return obj;
+	}
+
+	setValue(target, val) {
+		let { add, remove } = val;
+		add = add ?? [];
+		remove = remove ?? [];
+
+		if (!Array.isArray(add) || !Array.isArray(remove))
+			throw new Error('add or remove expected');
+
+		add.forEach(cls => {
+			const exists = this.states.get(cls);
+			if (!exists) {
+				target.addClass(cls);
+				this.states.set(cls, true);
+			}
+		});
+
+		remove.forEach(cls => {
+			const exists = this.states.get(cls);
+			if (exists) {
+				target.removeClass(cls);
+				this.states.set(cls, false);
+			}
+		});
+	}
+
+	removeValue(target) {
+		this.preStates.forEach((exists, cls) => {
+			if (exists)
+				target.addClass(cls);
+			else
+				target.removeClass(cls);
+		});
+		this.states = new Map(this.preStates);
+	}
+}
+
 export function newProperty(prop, targetType = '') {
 	if (targetType !== 'dom')
 		throw new Error('only dom is supported as target');
@@ -190,6 +356,8 @@ export function newProperty(prop, targetType = '') {
 		return new TransformXY(prop);
 	if (prop in STYLE_PROPS)
 		return new StyleProp(prop);
+	if (prop === 'cls')
+		return new ClassNameProp(prop);
 
 	throw new Error('unknown prop ' + prop);
 }

@@ -14,9 +14,8 @@ describe('usecases', () => {
 		ctn.scrollHeight = '100px';
 
 		const tl = timeline()
-			.add(itm, {
-				// clsAdd: 'open',
-				duration: 100
+			.set(itm, {
+				cls: 'open'
 			})
 			.add(ctn, {
 				maxHeight: reactive(el => el.scrollHeight),
@@ -25,15 +24,29 @@ describe('usecases', () => {
 
 		// // on click
 		tl.play();
-		ticker.run(1);
-		expect(ctn.style.maxHeight).toBe('1.000px');
+		ticker.run(5);
+		expect(ctn.style.maxHeight).toBe('5.000px');
+		expect(itm.classList.contains('open')).toBe(true);
 
 		ticker.run();
 		expect(ctn.style.maxHeight).toBe('100.000px');
+		expect(itm.classList.contains('open')).toBe(true);
 
 		// now a resize comes
 		ctn.scrollHeight = '200px';
 		tl.update();
 		expect(ctn.style.maxHeight).toBe('200.000px');
+		expect(itm.classList.contains('open')).toBe(true);
+
+		// on click
+		tl.reverse();
+		tl.play();
+		ticker.run(12);
+		expect(ctn.style.maxHeight).toBe('176.000px');
+		expect(itm.classList.contains('open')).toBe(true);
+
+		ticker.run();
+		expect(ctn.style.maxHeight).toBe(undefined);
+		expect(itm.classList.contains('open')).toBe(false);
 	});
 });

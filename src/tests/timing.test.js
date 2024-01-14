@@ -91,31 +91,62 @@ describe('timing', () => {
 		expect(timing.state).toBe(STATE_BEFORE);
 		expect(timing.position).toBe(0);
 
+		// <
 		timing.reverse();
-		// inverse
 		expect(timing.state).toBe(STATE_AFTER);
 		expect(timing.position).toBe(0);
 
+		// >
 		timing.reverse();
 		expect(timing.state).toBe(STATE_BEFORE);
 		expect(timing.position).toBe(0);
 
+		// >
 		timing.advance(25);
 		expect(timing.state).toBe(STATE_RUNNING);
 		expect(timing.position).toBe(0.25);
 
+		// <
 		timing.reverse();
 		expect(timing.state).toBe(STATE_RUNNING);
 		expect(timing.position).toBe(0.25);
+
+		// <
 		timing.advance(24);
 		expect(timing.state).toBe(STATE_RUNNING);
+		expect(timing.position.toFixed(3)).toBe('0.010');
+
+		// <
 		timing.advance(1);
 		expect(timing.state).toBe(STATE_ENDED);
 		expect(timing.position).toBe(0);
 
+		// >
+		timing.reverse();
+		expect(timing.state).toBe(STATE_START);
+		expect(timing.position).toBe(0);
+
+		// ><
 		timing.seek(0.75);
 		timing.reverse();
 		expect(timing.position).toBe(0.75);
+
+		// <
+		timing.advance(10);
+		expect(timing.position).toBe(0.65);
+
+
+		const timing2 = new Timing({
+			duration: 100
+		});
+
+		timing2.advance(100);
+		expect(timing2.state).toBe(STATE_ENDED);
+		expect(timing2.position).toBe(1);
+
+		timing2.reverse();
+		expect(timing2.state).toBe(STATE_START);
+		expect(timing2.position).toBe(1);
 	});
 
 	it('repeat', () => {

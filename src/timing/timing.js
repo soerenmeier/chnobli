@@ -140,6 +140,12 @@ export default class Timing {
 	reverse() {
 		this.reversed = !this.reversed;
 
+		const wrapAround = p => {
+			if (this.repeat > -1)
+				return p % (this.repeat + 1);
+			return p;
+		};
+
 		let p;
 		if (this.state <= STATE_BEFORE) {
 			p = 2;
@@ -147,10 +153,10 @@ export default class Timing {
 			p = -1;
 		// check if the values should be reversed
 		} else if (this.reversed != this._shouldInvert()) {
-			p = Math.floor(this._progress);
-			p = p + (1 - (this._progress - p));
+			let decimal = 1 - this._progress % 1;
+			p = wrapAround(Math.floor(this._progress) + decimal);
 		} else {
-			p = this._progress;
+			p = wrapAround(this._progress);
 		}
 
 		this._updateProgress(p);

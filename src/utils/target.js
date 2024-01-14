@@ -50,6 +50,18 @@ export default class Target {
 		return this.removeValue(name);
 	}
 
+	hasClass(name) {
+		throw new Error('cannot know if class exists ' + name);
+	}
+
+	addClass(name) {
+		throw new Error('cannot add class ' + name);
+	}
+
+	removeClass(name) {
+		throw new Error('cannot remove class ' + name);
+	}
+
 	apply() {}
 }
 
@@ -147,6 +159,18 @@ export class DomTarget extends Target {
 
 	removeStyleValue(name) {
 		this.styleValues.set(name, undefined);
+	}
+
+	hasClass(name) {
+		return this.target.classList.contains(name);
+	}
+
+	addClass(name) {
+		return this.target.classList.add(name);
+	}
+
+	removeClass(name) {
+		return this.target.classList.remove(name);
 	}
 
 	apply() {

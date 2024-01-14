@@ -108,9 +108,6 @@ class PropertyAnimation {
 		this.iniFrom = null;
 		this.iniTo = null;
 
-		this.from = null;
-		this.to = null;
-
 		if (typeof value === 'object') {
 			if ('from' in value)
 				this.iniFrom = maybeReactiveValue(this.prop, value.from);
@@ -123,6 +120,12 @@ class PropertyAnimation {
 			if (!this.iniFrom && !this.iniTo)
 				throw new Error('from or to expected');
 		} else if (typeof value === 'function') {
+			if (!this.prop.allowsValueFn()) {
+				throw new Error(
+					'prop ' + prop + ' does not allow value functions'
+				);
+			}
+
 			this.valueFn = value;
 		} else {
 			this.iniTo = this.prop.parseValue(value);
@@ -131,27 +134,26 @@ class PropertyAnimation {
 
 	// calculate from and to position
 	init(target) {
+		// there is nothing to initialize since on every render we call the
+		// value Fn
 		if (this.valueFn)
 			return;
 
 		// init from
+		let from = null;
 		if (typeof this.iniFrom === 'function')
-			this.from = this.prop.parseValue(this.iniFrom(target.target));
+			from = this.prop.parseValue(this.iniFrom(target.target));
 		else
-			this.from = this.iniFrom;
-		if (!this.from)
-			this.from = this.prop.getValue(target);
+			from = this.iniFrom;
 
 		// init to
+		let to = null;
 		if (typeof this.iniTo === 'function')
-			this.to = this.prop.parseValue(this.iniTo(target.target));
+			to = this.prop.parseValue(this.iniTo(target.target));
 		else
-			this.to = this.iniTo;
-		if (!this.to)
-			this.to = this.prop.getValue(target);
+			to = this.iniTo;
 
-		if (this.to.unit !== this.from.unit)
-			throw new Error(this.from.unit + ' != ' + this.to.unit);
+		this.prop.init(target, from, to);
 	}
 
 	restoreBefore(target) {
@@ -165,9 +167,7 @@ class PropertyAnimation {
 			return;
 		}
 
-		const dif = this.to.num - this.from.num;
-
-		this.prop.setValue(target, this.from.cloneAdd(pos * dif));
+		this.prop.setValue(target, this.prop.interpolate(pos));
 	}
 }
 

@@ -10,6 +10,19 @@ export default class TestDomNode {
 				delete this.style[k];
 			}
 		};
+
+		this.classList = {
+			set: new Set,
+			contains(name) {
+				return this.set.has(name);
+			},
+			add(name) {
+				this.set.add(name);
+			},
+			remove(name) {
+				this.set.delete(name);
+			}
+		};
 	}
 
 	syncStyles() {
