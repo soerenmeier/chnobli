@@ -12,8 +12,13 @@ const STATE_PLAYING = 2;
 export default class PublicTimeline {
 	constructor(props = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
+		this._responsive = takeProp(props, 'responsive', true);
+
+		if (typeof this._responsive !== 'boolean')
+			throw new Error('responsive can only be a boolean');
 		if ('duration' in props)
 			throw new Error('a timeline does not accept a duration');
+
 		this._inner = new Timeline(props);
 
 		// 'start', 'end'
@@ -22,9 +27,21 @@ export default class PublicTimeline {
 		this._state = STATE_PAUSED;
 		this._renderedOnce = false;
 		this._runningTicker = null;
-		this._responsiveEvent = ResponsiveEvent.global()?.add((...args) => {
-			this._onResponsive(...args);
-		});
+		this._responsiveBlocks = [];
+		if (this._responsive) {
+			this._responsiveEvent = ResponsiveEvent.global()?.add((...args) => {
+				this._onResponsive(...args);
+			});
+
+			// setup callback so we can notify our listeners
+			this._inner.setBeforeResponsiveFn(() => {
+				this._responsiveBlocks.forEach(block => {
+					block.responsive();
+				});
+			});
+		} else {
+			this._responsiveEvent = null;
+		}
 	}
 
 	/**
@@ -75,6 +92,27 @@ export default class PublicTimeline {
 	 */
 	label(label, offset = null) {
 		this._inner.label(label, offset);
+
+		return this;
+	}
+
+	/**
+	 * Adds a responsive function call which get's called before the responsive
+	 * functions in properties
+	 */
+	addResponsive(responsive) {
+		if (!this._responsiveEvent)
+			throw new Error('this timeline is not responsive');
+
+		if (Array.isArray(responsive)) {
+			responsive.forEach(resp => this.addResponsive(resp));
+			return this;
+		}
+
+		if (typeof responsive.responsive !== 'function')
+			throw new Error('expected a responsive() function');
+
+		this._responsiveBlocks.push(responsive);
 
 		return this;
 	}
@@ -219,6 +257,7 @@ export default class PublicTimeline {
 		this._inner.destroy();
 		this._events.destroy();
 		this._responsiveEvent?.remove();
+		this._responsiveBlocks = [];
 		this._inner = null;
 	}
 

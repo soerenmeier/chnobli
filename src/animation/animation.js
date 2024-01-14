@@ -111,8 +111,10 @@ class PropertyAnimation {
 		this.prop = newProperty(prop, animation.target.type());
 		// we will get the from the targets
 
+		this.staticValueFn = false;
 		this.valueFn = null;
 
+		this.iniResponsive = null;
 		this.iniFrom = null;
 		this.iniTo = null;
 
@@ -123,9 +125,9 @@ class PropertyAnimation {
 				this.iniTo = maybeResponsiveValue(this.prop, value.to);
 
 			if ('responsive' in value)
-				this.iniTo = value.responsive;
+				this.iniResponsive = value.responsive;
 
-			if (!this.iniFrom && !this.iniTo)
+			if (!this.iniFrom && !this.iniTo && !this.iniResponsive)
 				throw new Error('from or to expected');
 		} else if (typeof value === 'function') {
 			if (!this.prop.allowsValueFn()) {
@@ -134,6 +136,7 @@ class PropertyAnimation {
 				);
 			}
 
+			this.staticValueFn = true;
 			this.valueFn = value;
 		} else {
 			this.iniTo = this.prop.parseValue(value);
@@ -144,22 +147,54 @@ class PropertyAnimation {
 	init(target) {
 		// there is nothing to initialize since on every render we call the
 		// value Fn
-		if (this.valueFn)
+		if (this.staticValueFn)
 			return;
 
-		// init from
+		this.valueFn = null;
 		let from = null;
-		if (typeof this.iniFrom === 'function')
-			from = this.prop.parseValue(this.iniFrom(target.target));
-		else
-			from = this.iniFrom;
+		let to = null;
+
+		// init via responsive fn
+		if (this.iniResponsive) {
+			const value = this.iniResponsive(target.target);
+
+			if (typeof value === 'object') {
+				if ('from' in value)
+					from = this.prop.parseValue(value.from);
+				if ('to' in value)
+					to = this.prop.parseValue(value.to);
+
+				if (!from && !to)
+					throw new Error('from or to expected');
+			} else if (typeof value === 'function') {
+				if (!this.prop.allowsValueFn()) {
+					throw new Error(
+						`prop ${this.prop.name} does not allow value functions`
+					);
+				}
+
+				this.valueFn = value;
+				return;
+			} else {
+				to = this.prop.parseValue(value);
+			}
+		}
+
+		// init from
+		if (!from) {
+			if (typeof this.iniFrom === 'function')
+				from = this.prop.parseValue(this.iniFrom(target.target));
+			else
+				from = this.iniFrom;
+		}
 
 		// init to
-		let to = null;
-		if (typeof this.iniTo === 'function')
-			to = this.prop.parseValue(this.iniTo(target.target));
-		else
-			to = this.iniTo;
+		if (!to) {
+			if (typeof this.iniTo === 'function')
+				to = this.prop.parseValue(this.iniTo(target.target));
+			else
+				to = this.iniTo;
+		}
 
 		this.prop.init(target, from, to);
 	}

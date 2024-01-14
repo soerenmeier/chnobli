@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/testticker.js';
 import TestResponsiveEvent from '../responsive/testevent.js';
 import { animate, timeline } from '../chnobli.js';
+import { responsive } from '../utils/utils.js';
 import { el } from '../utils/testdomnode.js';
 import { timeout } from 'fire/util.js';
 
@@ -111,5 +112,41 @@ describe('properties', () => {
 		div.computedStyle.width = '30px';
 		respEv.resize();
 		expect(div.style.width).toBe('65.000px');
+	});
+
+	it('responsive', () => {
+		const ticker = new TestTicker;
+		const respEv = new TestResponsiveEvent;
+
+		const div = el();
+		div.computedStyle.width = '10px';
+
+		let windowWidth = 16;
+
+		let windowAspectRatio;
+		const resp1 = responsive(() => {
+			console.log('reso call');
+			windowAspectRatio = windowWidth / 9;
+		});
+
+		const tl = timeline()
+			.add(div, {
+				width: responsive(e => {
+					console.log('width resp');
+					return 20 * windowAspectRatio
+				}),
+				duration: 10
+			})
+			.addResponsive(resp1);
+
+		expect(windowAspectRatio).toBe(undefined);
+
+		tl.play();
+		ticker.run();
+		expect(div.style.width).toBe('35.556px');
+
+		windowWidth = 15;
+		respEv.resize();
+		expect(div.style.width).toBe('33.333px');
 	});
 });

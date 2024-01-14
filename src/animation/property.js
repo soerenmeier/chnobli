@@ -23,8 +23,11 @@ export default class Property {
 		if (!to)
 			to = this.getValue(target);
 
-		if (!from.unit || from.unit !== to.unit)
-			throw new Error(from.unit + ' != ' + to.unit);
+		if (!from || from.unit !== to.unit) {
+			throw new Error(
+				'property: ' + this.name + ' ' + from.unit + ' != ' + to.unit
+			);
+		}
 
 		this.from = from;
 		this.to = to;

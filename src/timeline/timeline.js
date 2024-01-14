@@ -35,6 +35,7 @@ export default class Timeline {
 		// { type: label|animation, value: {}, offset, start: x, end: y, render }
 		this.entries = [];
 
+		this._beforeResponsiveFn = () => {};
 		this._initialized = false;
 		this._renderQueue = null;
 	}
@@ -66,6 +67,11 @@ export default class Timeline {
 		});
 
 		return this;
+	}
+
+	// set's a function which get's called before any responsive call
+	setBeforeResponsiveFn(fn) {
+		this._beforeResponsiveFn = fn;
 	}
 
 	advance(change) {
@@ -128,9 +134,9 @@ export default class Timeline {
 
 		this.timing.setDuration(duration);
 
-		this._initAnimations();
+		this._beforeResponsiveFn();
 
-		// console.log(this.entries.map(e => e.value._props[0]));
+		this._initAnimations();
 	}
 
 	_initAnimations(reset = false) {
@@ -230,6 +236,8 @@ export default class Timeline {
 		this.render();
 		this.ticker.applyTargets();
 
+		this._beforeResponsiveFn();
+
 		// we now have removed every style we set
 		// we should be able to recalculate everything now
 		this._initAnimations(true);
@@ -251,6 +259,7 @@ export default class Timeline {
 		}
 
 		this.entries = [];
+		this._beforeResponsiveFn = null;
 		this.ticker.applyTargets();
 	}
 }
