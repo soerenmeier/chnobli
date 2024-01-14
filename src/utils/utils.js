@@ -26,8 +26,8 @@ export function fromTo(from, to) {
 /**
  * makes a value reactive to `Timeline::update` calls or resizes
  */
-export function reactive(fn) {
-	return { reactive: fn };
+export function responsive(fn) {
+	return { responsive: fn };
 }
 
 /**

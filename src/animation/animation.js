@@ -92,9 +92,9 @@ export default class Animation {
 	}
 }
 
-function maybeReactiveValue(prop, val) {
-	if (typeof val === 'object' && 'reactive' in val)
-		return val.reactive;
+function maybeResponsiveValue(prop, val) {
+	if (typeof val === 'object' && 'responsive' in val)
+		return val.responsive;
 	return prop.parseValue(val);
 }
 
@@ -110,12 +110,12 @@ class PropertyAnimation {
 
 		if (typeof value === 'object') {
 			if ('from' in value)
-				this.iniFrom = maybeReactiveValue(this.prop, value.from);
+				this.iniFrom = maybeResponsiveValue(this.prop, value.from);
 			if ('to' in value)
-				this.iniTo = maybeReactiveValue(this.prop, value.to);
+				this.iniTo = maybeResponsiveValue(this.prop, value.to);
 
-			if ('reactive' in value)
-				this.iniTo = value.reactive;
+			if ('responsive' in value)
+				this.iniTo = value.responsive;
 
 			if (!this.iniFrom && !this.iniTo)
 				throw new Error('from or to expected');

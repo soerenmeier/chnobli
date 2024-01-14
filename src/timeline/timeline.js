@@ -164,8 +164,8 @@ export default class Timeline {
 			entry.value.init(reset);
 		}
 
-		this.timing.seek(-1);
 		this.timing.reversed = reversed;
+		this.timing.seek(-1);
 		startOrdered.forEach(e => {
 			e.value.seek(-1);
 			e.value.render();
@@ -218,15 +218,23 @@ export default class Timeline {
 	}
 
 	update() {
+		if (!this._initialized)
+			return;
+
 		const pos = this.timing.savePosition();
+		const reversed = this.timing.reversed;
+		this.timing.reversed = false;
+
 		this.timing.seek(-1);
 		this._updateTimings();
 		this.render();
 		this.ticker.applyTargets();
+
 		// we now have removed every style we set
 		// we should be able to recalculate everything now
 		this._initAnimations(true);
 
+		this.timing.reversed = reversed;
 		this.timing.restorePosition(pos);
 		this._updateTimings();
 		this.render();

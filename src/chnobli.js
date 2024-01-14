@@ -1,13 +1,16 @@
 import Animation from './animation/public.js';
 import Timeline from './timeline/public.js';
 import Scroll from './scroll/public.js';
-import { stagger as _stagger } from './stagger/stagger.js';
+import Stagger from './stagger/stagger.js';
 
 
 // todo maybe add, to, from and fromTo to the animate function
 
 /**
  * Creates a simple animation
+ * 
+ * ## Properties
+ * 
  */
 export function animate(targets, props = {}) {
 	return new Animation(targets, props);
@@ -18,7 +21,7 @@ export function timeline(props = {}) {
 }
 
 export function stagger(value) {
-	return _stagger(value);
+	return new Stagger(value);
 }
 
 export function scroll(props = {}) {

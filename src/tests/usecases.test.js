@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/testticker.js';
+import TestResponsiveEvent from '../responsive/testevent.js';
 import { animate, timeline } from '../chnobli.js';
-import { reactive } from '../utils/utils.js';
+import { responsive } from '../utils/utils.js';
 import { el } from '../utils/testdomnode.js';
 
 describe('usecases', () => {
 	it('accordion', () => {
 		const ticker = new TestTicker;
+		const respEv = new TestResponsiveEvent;
 
 		const itm = el();
 		const ctn = el();
@@ -18,7 +20,7 @@ describe('usecases', () => {
 				cls: 'open'
 			})
 			.add(ctn, {
-				maxHeight: reactive(el => el.scrollHeight),
+				maxHeight: responsive(el => el.scrollHeight),
 				duration: 100
 			}, 0);
 
@@ -43,6 +45,11 @@ describe('usecases', () => {
 		tl.play();
 		ticker.run(12);
 		expect(ctn.style.maxHeight).toBe('176.000px');
+		expect(itm.classList.contains('open')).toBe(true);
+
+		ctn.scrollHeight = '150px';
+		respEv.resize(1000, 1000);
+		expect(ctn.style.maxHeight).toBe('132.000px');
 		expect(itm.classList.contains('open')).toBe(true);
 
 		ticker.run();

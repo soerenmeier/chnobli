@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/testticker.js';
+import TestResponsiveEvent from '../responsive/testevent.js';
 import { animate, timeline } from '../chnobli.js';
 import { el } from '../utils/testdomnode.js';
 
@@ -25,8 +26,30 @@ describe('properties', () => {
 		expect(div.style.width).toBe(undefined);
 	});
 
+	it('destroy', () => {
+		const ticker = new TestTicker;
+
+		const div = el();
+		const tl = timeline()
+			.add(div, {
+				x: 100,
+				width: 100,
+				duration: 10
+			})
+			.play();
+
+		ticker.run();
+		expect(div.style.transform).toBe('translateX(100.000px)');
+		expect(div.style.width).toBe('100.000px');
+
+		tl.resetProps();
+		expect(div.style.transform).toBe('');
+		expect(div.style.width).toBe(undefined);
+	});
+
 	it('update timeline', () => {
 		const ticker = new TestTicker;
+		const respEv = new TestResponsiveEvent;
 
 		const div = el();
 		div.computedStyle.width = '10px';
@@ -54,5 +77,14 @@ describe('properties', () => {
 		expect(div.style.width).toBe('36.000px');
 		ticker.run();
 		expect(div.style.width).toBe('100.000px');
+
+		tl.reverse();
+		tl.play();
+		ticker.run(5);
+		expect(div.style.width).toBe('60.000px');
+
+		div.computedStyle.width = '30px';
+		respEv.resize();
+		expect(div.style.width).toBe('65.000px');
 	});
 });

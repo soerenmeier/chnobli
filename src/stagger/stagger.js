@@ -23,11 +23,7 @@ export function staggerMap(value, fn) {
 	return fn(value);
 }
 
-export function stagger(value) {
-	return new Stagger(value);
-}
-
-class Stagger {
+export default class Stagger {
 	constructor(value) {
 		if (typeof value === 'function') {
 			this.fn = value;

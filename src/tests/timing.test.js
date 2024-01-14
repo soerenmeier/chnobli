@@ -147,6 +147,14 @@ describe('timing', () => {
 		timing2.reverse();
 		expect(timing2.state).toBe(STATE_START);
 		expect(timing2.position).toBe(1);
+
+		timing2.seek(-1);
+		expect(timing2.state).toBe(STATE_BEFORE);
+		expect(timing2.position).toBe(1);
+
+		timing2.seek(.25);
+		expect(timing2.state).toBe(STATE_RUNNING);
+		expect(timing2.position).toBe(.75);
 	});
 
 	it('repeat', () => {

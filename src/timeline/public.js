@@ -3,6 +3,7 @@ import Timeline from './timeline.js';
 import { STATE_ENDED } from '../timing/timing.js';
 import { callStagger } from '../stagger/stagger.js';
 import Events from '../utils/events.js';
+import ResponsiveEvent from '../responsive/event.js';
 
 const STATE_PAUSED = 0;
 const STATE_RENDER_ONCE = 1;
@@ -21,6 +22,9 @@ export default class PublicTimeline {
 		this._state = STATE_PAUSED;
 		this._renderedOnce = false;
 		this._runningTicker = null;
+		this._responsiveEvent = ResponsiveEvent.global()?.add((...args) => {
+			this._onResponsive(...args);
+		});
 	}
 
 	/**
@@ -146,9 +150,14 @@ export default class PublicTimeline {
 	 * Resets every used prop to it's previous value
 	 */
 	resetProps() {
+		const reversed = this._inner.timing.reverse;
+		this._inner.timing.reverse = false;
 		this._inner.seek(-1);
 		this._inner.render();
 		this._inner.ticker.applyTargets();
+
+		this._inner.timing.reverse = reversed;
+		this._inner.seek(-1);
 	}
 
 	/**
@@ -263,5 +272,12 @@ export default class PublicTimeline {
 
 		this._runningTicker.remove();
 		this._runningTicker = null;
+	}
+
+	_onResponsive(_obj) {
+		// // make sure we don't render something if we never did
+		// if (!this._renderedOnce)
+		// 	return;
+		this._inner.update();
 	}
 }
