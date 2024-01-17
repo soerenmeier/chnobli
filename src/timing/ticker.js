@@ -1,4 +1,4 @@
-import { newTarget } from '../utils/target.js';
+import { newTarget } from '../target/target.js';
 
 /**
  * The ticker is the main driver for all animations

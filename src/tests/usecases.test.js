@@ -3,7 +3,7 @@ import TestTicker from '../timing/testticker.js';
 import TestResponsiveEvent from '../responsive/testevent.js';
 import { animate, timeline } from '../chnobli.js';
 import { responsive } from '../utils/utils.js';
-import { el } from '../utils/testdomnode.js';
+import { el } from '../target/testdomnode.js';
 
 describe('usecases', () => {
 	it('accordion', () => {

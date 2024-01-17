@@ -1,6 +1,5 @@
-const UNITS = ['px', 'vw', 'vh', 'rem', 'em', 'rem', 'deg', 'rad', '%'];
+const REGEX = /^(\d+\.?\d*|\.\d+)(\w*|%)$/;
 
-const REGEX = /^(\d*\.?\d*)(\w*|%)$/;
 
 export default class Value {
 	constructor(num, unit = null) {
@@ -15,10 +14,11 @@ export default class Value {
 
 		const [_v, num, unit] = REGEX.exec(v);
 
-		if (unit && !UNITS.includes(unit))
-			throw new Error('unknown unit ' + unit);
-
 		return new Value(parseFloat(num), unit ? unit : null);
+	}
+
+	eq(other) {
+		return this.unit === other.unit && this.num === other.num;
 	}
 
 	clone(newNum = null) {

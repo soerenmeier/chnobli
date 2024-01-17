@@ -3,7 +3,7 @@ import TestTicker from '../timing/testticker.js';
 import TestResponsiveEvent from '../responsive/testevent.js';
 import { animate, timeline } from '../chnobli.js';
 import { responsive } from '../utils/utils.js';
-import { el } from '../utils/testdomnode.js';
+import { el } from '../target/testdomnode.js';
 import { timeout } from 'fire/util.js';
 
 describe('properties', () => {
@@ -20,7 +20,8 @@ describe('properties', () => {
 			.play();
 
 		ticker.run();
-		expect(div.style.transform).toBe('translateX(100.000px)');
+		expect(div.style.transform)
+			.toBe('translate3d(100.000px,0.000px,0.000px)');
 		expect(div.style.width).toBe('100.000px');
 
 		tl.resetProps();
@@ -47,7 +48,8 @@ describe('properties', () => {
 			expect(ticker.targets.size()).toBe(1);
 
 			ticker.run();
-			expect(div.style.transform).toBe('translateX(100.000px)');
+			expect(div.style.transform)
+				.toBe('translate3d(100.000px,0.000px,0.000px)');
 			expect(div.style.width).toBe('100.000px');
 
 			tl.destroy();

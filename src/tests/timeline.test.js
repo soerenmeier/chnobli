@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/testticker.js';
 import { animate, timeline } from '../chnobli.js';
-import { el } from '../utils/testdomnode.js';
+import { el } from '../target/testdomnode.js';
 
 describe('timeline', () => {
 	it('empty timeline', () => {
@@ -25,10 +25,12 @@ describe('timeline', () => {
 		tl.play();
 
 		ticker.run(0);
-		expect(target.style.transform).toBe('translateX(0.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(0.000px,0.000px,0.000px)');
 
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 
 		tl.reverse();
 		tl.play();
@@ -47,15 +49,18 @@ describe('timeline', () => {
 		tl.play();
 
 		ticker.run(0);
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 
 		tl.reverse();
 		tl.play();
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 	});
 
 	it('offsetTimeline timeline', () => {
@@ -74,12 +79,15 @@ describe('timeline', () => {
 		tl.play();
 
 		ticker.run(10);
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 		ticker.run(1);
-		expect(target.style.transform).toBe('translateX(11.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(11.000px,0.000px,0.000px)');
 
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(20.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(20.000px,0.000px,0.000px)');
 	});
 
 	it('timeline seeking', () => {
@@ -98,19 +106,23 @@ describe('timeline', () => {
 
 		tl.seekMs(10);
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 
 		tl.seekMs(11);
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(11.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(11.000px,0.000px,0.000px)');
 
 		tl.seekMs(20);
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(20.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(20.000px,0.000px,0.000px)');
 
 		tl.seekMs(8);
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(8.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(8.000px,0.000px,0.000px)');
 	});
 
 	it('seeking after', () => {
@@ -125,7 +137,8 @@ describe('timeline', () => {
 		ani.seek(2);
 
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 	});
 
 	it('timeline controls', () => {
@@ -144,24 +157,29 @@ describe('timeline', () => {
 
 		tl.seekMs(10);
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 
 		tl.play();
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(20.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(20.000px,0.000px,0.000px)');
 
 		tl.reset();
 		tl.play();
 		ticker.run(10);
-		expect(target.style.transform).toBe('translateX(10.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(10.000px,0.000px,0.000px)');
 
 		tl.reverse();
 		ticker.run(5);
-		expect(target.style.transform).toBe('translateX(5.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(5.000px,0.000px,0.000px)');
 
 		tl.reverse();
 		ticker.run();
-		expect(target.style.transform).toBe('translateX(20.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(20.000px,0.000px,0.000px)');
 
 		tl.reverse();
 		tl.play();
@@ -201,7 +219,8 @@ describe('timeline', () => {
 		tl.reverse();
 		ticker.run();
 		expect(endCounter).toBe(2);
-		expect(target.style.transform).toBe('translateX(50.000px) translateY(50.000px)');
+		expect(target.style.transform)
+			.toBe('translate3d(50.000px,50.000px,0.000px)');
 
 		tl.play();
 		ticker.run();
