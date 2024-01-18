@@ -1,4 +1,5 @@
 import Value from './value.js';
+import ColorValue from './colorvalue.js';
 
 const AT_THE_END_VALUES = ['none', 'hidden'];
 
@@ -21,6 +22,7 @@ export default class StyleValue {
 	 * - number (meaning this is of kind values with one value)
 	 * - array (meaning this is of kind values and each array element needs to
 	 * be a Value)
+	 * - ColorValue
 	 */
 	constructor(value) {
 		if (typeof value === 'string') {
@@ -31,6 +33,8 @@ export default class StyleValue {
 			value = [Value.parse(value)];
 		} else if (Array.isArray(value)) {
 			this.kind = 'values';
+		} else if (value instanceof ColorValue) {
+			this.kind = 'color';
 		} else {
 			throw new Error('unknown style value ' + value);
 		}
@@ -58,6 +62,10 @@ export default class StyleValue {
 
 		if (typeof v !== 'string')
 			throw new Error('expected a string as style value ' + v);
+
+		// let's first try to make it a color
+		if (ColorValue.mightBeAColor(v))
+			return new StyleValue(ColorValue.parse(v));
 
 		const split = v.split(' ').map(v => v.trim()).filter(v => !!v);
 		if (split.length === 0)
@@ -105,6 +113,9 @@ export default class StyleValue {
 		if (this.kind === 'text')
 			return new StyleValue(this.values);
 
+		if (this.kind === 'color')
+			return new StyleValue(this.values.clone());
+
 		return new StyleValue(this.values.map(v => v.clone()));
 	}
 
@@ -113,6 +124,9 @@ export default class StyleValue {
 		if (this.kind === 'text')
 			return new StyleValue(this.values);
 
+		if (this.kind === 'color')
+			return new StyleValue(this.values.clone());
+
 		return new StyleValue(this.values.map(v => v.withDefaultUnit(unit)));
 	}
 
@@ -120,6 +134,9 @@ export default class StyleValue {
 		switch (this.kind) {
 			case 'text':
 				return this.values;
+
+			case 'color':
+				return this.values.toString();
 
 			case 'values':
 				return this.values.join(' ');

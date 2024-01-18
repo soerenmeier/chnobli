@@ -106,4 +106,30 @@ describe('values', () => {
 		expect(div.style.position).toBe(undefined);
 		expect(div.style.visibility).toBe(undefined);
 	});
+
+	it('colors', () => {
+		const ticker = new TestTicker;
+		const div = el();
+		div.computedStyle.color = 'rgb(120, 130, 20)';
+
+		const tl = timeline()
+			.add(div, {
+				color: 'black',
+				backgroundColor: 'hsl(10, 80%, 40%)',
+				duration: 10
+			})
+			.play();
+
+		ticker.run(0);
+		expect(div.style.color).toBe('rgba(120, 130, 20, 1.000)');
+		expect(div.style.backgroundColor).toBe('rgba(255, 255, 255, 1.000)');
+
+		ticker.run(5);
+		expect(div.style.color).toBe('rgba(60, 65, 10, 1.000)');
+		expect(div.style.backgroundColor).toBe('rgba(220, 152, 138, 1.000)');
+
+		ticker.run();
+		expect(div.style.color).toBe('rgba(0, 0, 0, 1.000)');
+		expect(div.style.backgroundColor).toBe('rgba(184, 48, 20, 1.000)');
+	});
 });

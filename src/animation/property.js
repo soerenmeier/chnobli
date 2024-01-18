@@ -1,4 +1,5 @@
 import Value from '../values/value.js';
+import ColorValue from '../values/colorvalue.js';
 import StyleValue from '../values/stylevalue.js';
 
 export default class Property {
@@ -181,7 +182,9 @@ const STYLE_PROPS = {
 	'bottom': 'px',
 	'opacity': [1, null],
 	'padding': 'px',
-	'margin': 'px'
+	'margin': 'px',
+	'color': '#000',
+	'backgroundColor': '#fff'
 }
 
 export class StyleProp extends Property {
@@ -196,11 +199,11 @@ export class StyleProp extends Property {
 			this._defaultValue = new StyleValue([new Value(0, def)]);
 			this.unit = def;
 		} else {
-			this._defaultValue = new StyleValue(def);
+			this._defaultValue = StyleValue.parse(def);
 			this.unit = null;
 		}
 
-		// text|values
+		// text|color|values
 		this.kind = null;
 	}
 
@@ -237,6 +240,17 @@ export class StyleProp extends Property {
 		// get the current value
 		if (!to)
 			to = this.getValue(target);
+
+		// if one is a color both need to be a color
+		if (from.kind === 'color' || to.kind === 'color') {
+			if (from.kind !== to.kind)
+				throw new Error('expected two colors');
+
+			this.kind = 'color';
+			this.from = from;
+			this.to = to;
+			return;
+		}
 
 		// check that both are values
 		if (from.kind === 'text')
@@ -293,10 +307,15 @@ export class StyleProp extends Property {
 	}
 
 	interpolate(pos) {
-		if (this.kind === 'text') {
-			return this._interpolateText(pos);
-		} else {
-			return this._interpolateValues(pos);
+		switch (this.kind) {
+			case 'text':
+				return this._interpolateText(pos);
+
+			case 'color':
+				return this._interpolateColor(pos);
+
+			default:
+				return this._interpolateValues(pos);
 		}
 	}
 
@@ -341,6 +360,21 @@ export class StyleProp extends Property {
 		}
 
 		throw new Error('expected from or to');
+	}
+
+	_interpolateColor(pos) {
+		const vals = [];
+
+		for (let i = 0; i < 4; i++) {
+			const f = this.from.values.values[i];
+			const t = this.to.values.values[i];
+
+			const dif = t - f;
+
+			vals.push(f + pos * dif);
+		}
+
+		return new StyleValue(new ColorValue(vals));
 	}
 
 	_interpolateValues(pos) {
