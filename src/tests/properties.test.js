@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/testticker.js';
 import TestResponsiveEvent from '../responsive/testevent.js';
 import { animate, timeline } from '../chnobli.js';
-import { responsive } from '../utils/utils.js';
+import { responsive, curve } from '../utils/utils.js';
 import { el } from '../target/testdomnode.js';
 import { timeout } from 'fire/util.js';
 
@@ -146,5 +146,33 @@ describe('properties', () => {
 		windowWidth = 15;
 		respEv.resize();
 		expect(div.style.width).toBe('33.333px');
+	});
+
+	it('xy', () => {
+		const ticker = new TestTicker;
+
+		const div = el();
+		const tl = timeline()
+			.add(div, {
+				xy: curve([
+					{ x: 0, y: 10 },
+					{ x: 100, y: 10 },
+					{ x: 50, y: 20 }
+				]),
+				duration: 10
+			});
+
+		tl.play();
+		ticker.run(0);
+		expect(div.style.transform)
+			.toBe('translate3d(0.000px,10.000px,0.000px)');
+
+		ticker.run(5);
+		expect(div.style.transform)
+			.toBe('translate3d(100.000px,10.000px,0.000px)');
+
+		ticker.run();
+		expect(div.style.transform)
+			.toBe('translate3d(50.000px,20.000px,0.000px)');
 	});
 });

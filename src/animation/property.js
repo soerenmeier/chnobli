@@ -144,8 +144,8 @@ export class TransformXY extends Property {
 	}
 
 	getValue(target) {
-		const x = target.getTransformValue('translateX');
-		const y = target.getTransformValue('translateY');
+		const x = target.getTransformValue('x');
+		const y = target.getTransformValue('y');
 
 		const def = this.defaultValue();
 
@@ -156,13 +156,13 @@ export class TransformXY extends Property {
 	}
 
 	setValue(target, val) {
-		target.setTransformValue('translateX', val.x.withDefaultUnit('px'));
-		target.setTransformValue('translateY', val.y.withDefaultUnit('px'));
+		target.setTransformValue('x', val.x.withDefaultUnit('px'));
+		target.setTransformValue('y', val.y.withDefaultUnit('px'));
 	}
 
 	removeValue(target) {
-		target.removeTransformValue('translateX');
-		target.removeTransformValue('translateY');
+		target.removeTransformValue('x');
+		target.removeTransformValue('y');
 	}
 }
 
