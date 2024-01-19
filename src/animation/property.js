@@ -198,8 +198,11 @@ export class StyleProp extends Property {
 		} else if (def === 'px') {
 			this._defaultValue = new StyleValue([new Value(0, def)]);
 			this.unit = def;
-		} else {
+		} else if (typeof def !== 'undefined') {
 			this._defaultValue = StyleValue.parse(def);
+			this.unit = null;
+		} else {
+			this._defaultValue = null;
 			this.unit = null;
 		}
 
@@ -240,6 +243,10 @@ export class StyleProp extends Property {
 		// get the current value
 		if (!to)
 			to = this.getValue(target);
+
+		if (!from || !to)
+			throw new Error('from or to could not be defined, specified ' + 
+				'it with fromTo');
 
 		// if one is a color both need to be a color
 		if (from.kind === 'color' || to.kind === 'color') {
@@ -295,7 +302,7 @@ export class StyleProp extends Property {
 	}
 
 	defaultValue() {
-		return this._defaultValue.clone();
+		return this._defaultValue?.clone();
 	}
 
 	getValue(target) {
@@ -538,6 +545,8 @@ export function newProperty(prop, targetType = '') {
 		return new Transform(prop);
 	if (prop === 'xy')
 		return new TransformXY(prop);
+	if (prop.startsWith('--'))
+		return new StyleProp(prop);
 	if (prop in STYLE_PROPS)
 		return new StyleProp(prop);
 	if (prop === 'cls')

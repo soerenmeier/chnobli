@@ -2,7 +2,11 @@ let ROOT_ELEMENT = null;
 
 export default class TestDomNode {
 	constructor() {
-		this.computedStyle = {};
+		this.computedStyle = {
+			getPropertyValue(k) {
+				return this[k];
+			}
+		};
 
 		this.style = {
 			setProperty: (k, v) => {

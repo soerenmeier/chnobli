@@ -89,7 +89,7 @@ export default class DomTarget extends BaseTarget {
 		if (typeof v === 'undefined' || v === null) {
 			// let's try to get it from the dom
 			const style = this._extFns.getComputedStyle(this.target);
-			const styleV = style[name];
+			const styleV = style.getPropertyValue(name);
 
 			if (typeof styleV === 'undefined' || styleV === null)
 				return styleV;

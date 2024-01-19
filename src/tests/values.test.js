@@ -132,4 +132,31 @@ describe('values', () => {
 		expect(div.style.color).toBe('rgba(0, 0, 0, 1.000)');
 		expect(div.style.backgroundColor).toBe('rgba(184, 48, 20, 1.000)');
 	});
+
+	it('css-vars', () => {
+		const ticker = new TestTicker;
+		const div = el();
+		div.computedStyle['--color'] = 'rgb(120, 130, 20)';
+		div.computedStyle['--border'] = '20px';
+
+		const tl = timeline()
+			.add(div, {
+				'--color': 'black',
+				'--border': '1px 20px',
+				duration: 10
+			})
+			.play();
+
+		ticker.run(0);
+		expect(div.style['--color']).toBe('rgba(120, 130, 20, 1.000)');
+		expect(div.style['--border']).toBe('20.000px 20.000px');
+
+		ticker.run(5);
+		expect(div.style['--color']).toBe('rgba(60, 65, 10, 1.000)');
+		expect(div.style['--border']).toBe('10.500px 20.000px');
+
+		ticker.run();
+		expect(div.style['--color']).toBe('rgba(0, 0, 0, 1.000)');
+		expect(div.style['--border']).toBe('1.000px 20.000px');
+	});
 });
