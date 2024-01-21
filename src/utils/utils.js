@@ -43,13 +43,18 @@ export function chars(element) {
 	element.dataset.processedChars = 'yes';
 
 	return chars.map(c => {
+		if (c.trim().length === 0) {
+			element.appendChild(document.createTextNode(c));
+			return null;
+		}
+
 		const span = document.createElement('span');
 		span.textContent = c;
 		span.style.display = 'inline-block';
 		element.appendChild(span);
 
 		return span;
-	});
+	}).filter(c => !!c);
 }
 
 /**

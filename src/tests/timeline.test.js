@@ -231,4 +231,43 @@ describe('timeline', () => {
 		ticker.run();
 		expect(endCounter).toBe(4);
 	});
+
+	it('nested timeline', () => {
+		const ticker = new TestTicker;
+
+		const target = el();
+		const tl = timeline()
+			.add(target, {
+				width: 50,
+				duration: 10
+			})
+			.nest(tl => {
+				tl.add(target, {
+					opacity: 0,
+					duration: 5
+				})
+				.add(target, {
+					opacity: 1,
+					duration: 5
+				});
+			})
+			.add(target, {
+				height: 50,
+				duration: 10
+			})
+			.play();
+
+		ticker.run(0);
+		expect(target.style.width).toBe('0.000px');
+		ticker.run(10);
+		expect(target.style.width).toBe('50.000px');
+		expect(target.style.opacity).toBe('1.000');
+		ticker.run(5);
+		expect(target.style.opacity).toBe('0.000');
+		ticker.run(5);
+		expect(target.style.opacity).toBe('1.000');
+		expect(target.style.height).toBe('0.000px');
+		ticker.run(10);
+		expect(target.style.height).toBe('50.000px');
+	});
 });

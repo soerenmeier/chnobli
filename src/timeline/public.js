@@ -4,6 +4,7 @@ import { STATE_ENDED } from '../timing/timing.js';
 import { callStagger } from '../stagger/stagger.js';
 import Events from '../utils/events.js';
 import ResponsiveEvent from '../responsive/event.js';
+import NestedTimeline from './nested.js';
 
 const STATE_PAUSED = 0;
 const STATE_RENDER_ONCE = 1;
@@ -59,28 +60,7 @@ export default class PublicTimeline {
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
 	add(targets, props, offset = null) {
-		if (Array.from(targets).length === 0)
-			targets = [targets];
-		else
-			targets = Array.from(targets);
-
-		let i = -1;
-		for (const target of targets) {
-			i++;
-
-			const nProps = {
-				...this._defaults,
-				...props
-			};
-
-			for (const prop in nProps) {
-				nProps[prop] = callStagger(nProps[prop], i, targets.length);
-			}
-
-			const nOffset = callStagger(offset, i);
-
-			this._inner.add(target, nProps, nOffset, i);
-		}
+		timelineAdd(this, targets, props, offset);
 
 		return this;
 	}
@@ -92,6 +72,21 @@ export default class PublicTimeline {
 	 */
 	label(label, offset = null) {
 		this._inner.label(label, offset);
+
+		return this;
+	}
+
+	/**
+	 * Allows to nest timelines
+	 * 
+	 * fn: (timeline)
+	 */
+	nest(fn, opts = {}, offset = null) {
+		const tl = new NestedTimeline(opts);
+
+		fn(tl);
+
+		this._inner.addTimeline(tl._inner, offset);
 
 		return this;
 	}
@@ -329,5 +324,34 @@ export default class PublicTimeline {
 		// if (!this._renderedOnce)
 		// 	return;
 		this._inner.update();
+	}
+}
+
+/**
+ * Add an animation to the timeline
+ * tl needs to have _defaults, and _inner
+ */
+export function timelineAdd(tl, targets, props, offset = null) {
+	if (Array.from(targets).length === 0)
+		targets = [targets];
+	else
+		targets = Array.from(targets);
+
+	let i = -1;
+	for (const target of targets) {
+		i++;
+
+		const nProps = {
+			...tl._defaults,
+			...props
+		};
+
+		for (const prop in nProps) {
+			nProps[prop] = callStagger(nProps[prop], i, targets.length);
+		}
+
+		const nOffset = callStagger(offset, i);
+
+		tl._inner.add(target, nProps, nOffset, i);
 	}
 }

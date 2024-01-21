@@ -40,6 +40,12 @@ export default class Timeline {
 		this._renderQueue = null;
 	}
 
+	isFinite() {
+		return !this.entries.some(e => {
+			return e.type === 'animation' && !e.value.isFinite();
+		});
+	}
+
 	// relative represents the point which the offset should be taken
 	// if relative 1 is done the offset will be taken from the previous - 1
 	add(targets, props, offset = null, relative = 0) {
@@ -56,6 +62,18 @@ export default class Timeline {
 		});
 
 		return this;
+	}
+
+	addTimeline(tl, offset = null) {
+		if (!tl.isFinite())
+			throw new Error('the animation needs to be finite');
+
+		this.entries.push({
+			type: 'timeline',
+			value: tl,
+			offset: new Offset(offset),
+			relativeOffset: 0
+		});
 	}
 
 	label(label, offset = null) {
@@ -123,6 +141,11 @@ export default class Timeline {
 			if (entry.type === 'animation')
 				end += entry.value.duration;
 
+			if (entry.type === 'timeline') {
+				entry.value.init();
+				end += entry.value.timing.duration;
+			}
+
 			if (entry.type === 'label')
 				labels[entry.value] = start;
 
@@ -148,7 +171,9 @@ export default class Timeline {
 		// initialization means
 		// we need to define which value should be used as the from and the to
 		// value
-		const startOrdered = this.entries.filter(e => e.type === 'animation');
+		const startOrdered = this.entries.filter(e => {
+			return e.type === 'animation' || e.type === 'timeline';
+		});
 		startOrdered.sort((a, b) => a.start - b.start);
 
 		for (let i = 0; i < startOrdered.length; i++) {
@@ -207,7 +232,7 @@ export default class Timeline {
 		const pos = this.timing.positionMsUnbounded();
 
 		for (const entry of this.entries) {
-			if (entry.type !== 'animation')
+			if (entry.type !== 'animation' && entry.type !== 'timeline')
 				continue;
 
 			const animation = entry.value;
@@ -251,6 +276,11 @@ export default class Timeline {
 
 	destroy() {
 		for (const entry of this.entries) {
+			if (entry.type === 'timeline') {
+				entry.value.destroy();
+				continue
+			}
+
 			if (entry.type !== 'animation')
 				continue;
 
