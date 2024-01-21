@@ -58,6 +58,33 @@ export function chars(element) {
 }
 
 /**
+ * Converts an element with text into span with words
+ */
+export function words(element) {
+	if (element.dataset.processedWords)
+		return Array.from(element.children);
+
+	const words = element.textContent.split(/(\s+)/);
+
+	element.textContent = '';
+	element.dataset.processedWords = 'yes';
+
+	return words.map(word => {
+		if (word.trim().length === 0) {
+			element.appendChild(document.createTextNode(word));
+			return null;
+		}
+
+		const span = document.createElement('span');
+		span.textContent = word;
+		span.style.display = 'inline-block';
+		element.appendChild(span);
+
+		return span;
+	}).filter(w => !!w);
+}
+
+/**
  * get the offset to the current page page
  */
 export function pageOffset(el) {
