@@ -1,6 +1,6 @@
 {
 	"name": "chnobli",
-	"version": "0.1.5",
+	"version": "0.1.6",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {
@@ -8,7 +8,9 @@
 		"check": "tsc",
 		"lint": "eslint ./src",
 		"test": "node --expose-gc ./node_modules/.bin/vitest",
-		"test:once": "node --expose-gc ./node_modules/.bin/vitest run"
+		"test:once": "node --expose-gc ./node_modules/.bin/vitest run",
+		"build": "tsc -p tsconfig.build.json",
+		"watch": "tsc -w"
 	},
 	"repository": {
 		"type": "git",
@@ -16,18 +18,20 @@
 	},
 	"license": "MIT",
 	"exports": {
-		"./easing": "./src/timing/easing.js",
-		"./utils": "./src/utils/utils.js",
-		".": "./src/chnobli.js"
+		"./easing": "./dist/timing/easing.js",
+		"./utils": "./dist/utils/utils.js",
+		".": "./dist/chnobli.js"
 	},
 	"devDependencies": {
 		"eslint": "^8.45.0",
 		"jsdoc": "^4.0.2",
 		"typescript": "^5.1.6",
-		"vitest": "^1.1.3"
+		"vitest": "^1.1.3",
+		"prettier": "^3.2.4",
+		"tslib": "^2.6.2"
 	},
 	"dependencies": {
 		"bezier-easing": "^2.1.0",
-		"fire": "npm:fire-lib-js@0.2.17"
+		"fire": "npm:fire-lib-js@^0.3.0-alpha.11"
 	}
 }
