@@ -1,0 +1,11 @@
+[*]
+end_of_line = lf
+
+[*{yaml}]
+indent_style = tab
+indent_size = 2
+
+[*{js,ts,json,ts,md}]
+indent_size = 4
+charset = utf-8
+indent_style = tab

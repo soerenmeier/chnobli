@@ -37,7 +37,7 @@ export default class AnimationFrameTicker implements Ticker {
 		// @ts-ignore
 		if (typeof window.chnobliTicker === 'undefined')
 			// @ts-ignore
-			window.chnobliTicker = new Ticker();
+			window.chnobliTicker = new AnimationFrameTicker();
 		// @ts-ignore
 		return window.chnobliTicker;
 	}
