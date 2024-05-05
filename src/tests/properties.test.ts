@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/TestTicker.js';
 import TestResponsiveEvent from '../responsive/TestEvent.js';
-import { animate, timeline } from '../chnobli.js.js';
+import { animate, timeline } from '../chnobli.js';
 import { responsive, curve } from '../utils/utils.js';
 import { el } from '../target/TestDomNode.js';
 import { timeout } from 'fire/utils';
