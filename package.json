@@ -1,6 +1,6 @@
 {
 	"name": "chnobli",
-	"version": "0.1.7",
+	"version": "0.1.8",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {
@@ -18,9 +18,18 @@
 	},
 	"license": "MIT",
 	"exports": {
-		"./easing": "./dist/timing/easing.js",
-		"./utils": "./dist/utils/utils.js",
-		".": "./dist/chnobli.js"
+		"./easing": {
+			"import": "./dist/timing/easing.js",
+			"types": "./dist/timing/easing.d.ts"
+		},
+		"./utils": {
+			"import": "./dist/utils/utils.js",
+			"types": "./dist/utils/utils.d.ts"
+		},
+		".": {
+			"import": "./dist/chnobli.js",
+			"types": "./dist/chnobli.d.ts"
+		}
 	},
 	"devDependencies": {
 		"eslint": "^8.45.0",
