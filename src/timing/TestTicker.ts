@@ -1,5 +1,5 @@
-import { GlobalTargets } from './AnimationFrameTicker';
-import Ticker, { Callback } from './Ticker';
+import { GlobalTargets } from './AnimationFrameTicker.js';
+import Ticker, { Callback } from './Ticker.js';
 
 export default class TestTicker implements Ticker {
 	private _listeners: Set<Callback>;

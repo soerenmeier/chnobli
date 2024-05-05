@@ -1,5 +1,5 @@
-import { newTarget } from '../target/Target';
-import Ticker, { Callback } from './Ticker';
+import { newTarget } from '../target/Target.js';
+import Ticker, { Callback } from './Ticker.js';
 
 /**
  * The ticker is the main driver for all animations

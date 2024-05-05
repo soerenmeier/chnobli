@@ -1,10 +1,10 @@
-import { takeProp } from '../utils/internal';
-import Timeline from './TimeLine';
-import { STATE_ENDED } from '../timing/Timing';
-import { callStagger } from '../stagger/stagger';
-import Events from '../utils/Events';
-import ResponsiveEvent from '../responsive/ResponsiveEvent';
-import NestedTimeline from './Nested';
+import { takeProp } from '../utils/internal.js';
+import Timeline from './TimeLine.js';
+import { STATE_ENDED } from '../timing/Timing.js';
+import { callStagger } from '../stagger/stagger.js';
+import Events from '../utils/Events.js';
+import ResponsiveEvent from '../responsive/ResponsiveEvent.js';
+import NestedTimeline from './Nested.js';
 
 const STATE_PAUSED = 0;
 const STATE_RENDER_ONCE = 1;
@@ -15,9 +15,15 @@ export type Responsive = {
 };
 
 export default class PublicTimeline {
+	/**
+	 * @ignore
+	 */
 	_defaults: Record<string, any>;
 	private _responsive: boolean;
 
+	/**
+	 * @ignore
+	 */
 	_inner: Timeline;
 
 	private _events: Events;
@@ -66,7 +72,7 @@ export default class PublicTimeline {
 	 * Set's properties
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
-	set(targets: any, props: Record<string, any>, offset = null) {
+	set(targets: any, props: Record<string, any>, offset = null): this {
 		// for the moment let's just add as usual but set the duration to 0
 		return this.add(targets, { ...props, duration: 0 }, offset);
 	}
@@ -76,7 +82,7 @@ export default class PublicTimeline {
 	 *
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
-	add(targets: any, props: Record<string, any>, offset = null) {
+	add(targets: any, props: Record<string, any>, offset = null): this {
 		timelineAdd(this, targets, props, offset);
 
 		return this;
@@ -87,7 +93,7 @@ export default class PublicTimeline {
 	 *
 	 * This label can then be used in offsets
 	 */
-	label(label: string, offset: any = null) {
+	label(label: string, offset: any = null): this {
 		this._inner.label(label, offset);
 
 		return this;
@@ -99,7 +105,11 @@ export default class PublicTimeline {
 	 * fn: (timeline)
 	 */
 	// todo probably tl should be an interface
-	nest(fn: (tl: NestedTimeline) => void, opts = {}, offset: any = null) {
+	nest(
+		fn: (tl: NestedTimeline) => void,
+		opts = {},
+		offset: any = null,
+	): this {
 		const tl = new NestedTimeline(opts);
 
 		fn(tl);
@@ -113,7 +123,7 @@ export default class PublicTimeline {
 	 * Adds a responsive function call which get's called before the responsive
 	 * functions in properties
 	 */
-	addResponsive(responsive: Responsive | Responsive[]) {
+	addResponsive(responsive: Responsive | Responsive[]): this {
 		if (!this._responsiveEvent)
 			throw new Error('this timeline is not responsive');
 
@@ -133,7 +143,7 @@ export default class PublicTimeline {
 	/**
 	 * Starts to play the timeline if it hasn't started
 	 */
-	play() {
+	play(): this {
 		if (this._state === STATE_PLAYING) return this;
 
 		this._state = STATE_PLAYING;
@@ -217,7 +227,7 @@ export default class PublicTimeline {
 	/**
 	 * Returns wether the timeline is set to reversed
 	 */
-	isReversed() {
+	isReversed(): boolean {
 		return this._inner.timing.reversed;
 	}
 
@@ -248,12 +258,12 @@ export default class PublicTimeline {
 	 * Does not get executed during seeking
 	 *
 	 */
-	on(event: string, fn: (...args: any[]) => void) {
+	on(event: string, fn: (...args: any[]) => void): () => void {
 		return this._events.add(event, fn);
 	}
 
 	// not working
-	onPromise(event: string) {
+	onPromise(event: string): Promise<any> {
 		return this._events.wait(event);
 	}
 
@@ -270,6 +280,9 @@ export default class PublicTimeline {
 		this._inner = null;
 	}
 
+	/**
+	 * @ignore
+	 */
 	_startTicker() {
 		if (this._runningTicker) return;
 
@@ -321,6 +334,9 @@ export default class PublicTimeline {
 		});
 	}
 
+	/**
+	 * @ignore
+	 */
 	_stopTicker() {
 		if (!this._runningTicker) return;
 
@@ -328,6 +344,9 @@ export default class PublicTimeline {
 		this._runningTicker = null;
 	}
 
+	/**
+	 * @ignore
+	 */
 	_onResponsive(
 		a: { width: number; height: number },
 		b: { remove: () => void },

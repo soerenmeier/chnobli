@@ -1,5 +1,5 @@
-import PublicTimeline from '../timeline/public';
-import Scroll from './Scroll';
+import PublicTimeline from '../timeline/public.js';
+import Scroll from './Scroll.js';
 
 export default class PublicScroll {
 	private _inner: Scroll;

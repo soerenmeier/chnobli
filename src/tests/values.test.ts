@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import TestTicker from '../timing/TestTicker';
-import { animate, timeline } from '../chnobli';
-import { responsive, from, fromTo } from '../utils/utils';
-import { el, getRootElement } from '../target/TestDomNode';
+import TestTicker from '../timing/TestTicker.js';
+import { animate, timeline } from '../chnobli.js';
+import { responsive, from, fromTo } from '../utils/utils.js';
+import { el, getRootElement } from '../target/TestDomNode.js';
 
 describe('values', () => {
 	it('rem unit', () => {

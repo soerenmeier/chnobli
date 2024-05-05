@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import TestTicker from '../timing/TestTicker';
-import { animate, timeline } from '../chnobli';
-import { el } from '../target/TestDomNode';
+import TestTicker from '../timing/TestTicker.js';
+import { animate, timeline } from '../chnobli.js';
+import { el } from '../target/TestDomNode.js';
 
 describe('timeline', () => {
 	it('empty timeline', () => {

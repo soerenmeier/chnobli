@@ -1,7 +1,9 @@
-import Animation from './animation/public';
-import Timeline from './timeline/public';
-import Scroll from './scroll/public';
-import Stagger from './stagger/stagger';
+import Animation from './animation/public.js';
+import Timeline from './timeline/public.js';
+import Scroll from './scroll/public.js';
+import Stagger from './stagger/stagger.js';
+
+export type { Animation, Timeline, Stagger, Scroll };
 
 // todo maybe add, to, from and fromTo to the animate function
 
@@ -11,19 +13,22 @@ import Stagger from './stagger/stagger';
  * ## Properties
  *
  */
-export function animate(targets: any, props: Record<string, any> = {}) {
+export function animate(
+	targets: any,
+	props: Record<string, any> = {},
+): Animation {
 	return new Animation(targets, props);
 }
 
-export function timeline(props: Record<string, any> = {}) {
+export function timeline(props: Record<string, any> = {}): Timeline {
 	return new Timeline(props);
 }
 
-export function stagger(value: any) {
+export function stagger(value: any): Stagger {
 	return new Stagger(value);
 }
 
-export function scroll(props: Record<string, any> = {}) {
+export function scroll(props: Record<string, any> = {}): Scroll {
 	return new Scroll(props);
 }
 

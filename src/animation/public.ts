@@ -1,6 +1,6 @@
-import { takeProp } from '../utils/internal';
-import Timeline from '../timeline/public';
-import { staggerMap } from '../stagger/stagger';
+import { takeProp } from '../utils/internal.js';
+import Timeline from '../timeline/public.js';
+import { staggerMap } from '../stagger/stagger.js';
 
 /**
  * The animation consist of a timeline with just one animation
@@ -83,7 +83,7 @@ export default class PublicAnimation {
 	/**
 	 * Returns wether the timeline is set to reversed
 	 */
-	isReversed() {
+	isReversed(): boolean {
 		return this._tl.isReversed();
 	}
 
@@ -101,12 +101,15 @@ export default class PublicAnimation {
 		this._tl.reverse();
 	}
 
-	on(event: string, fn: (...args: any[]) => void) {
+	/**
+	 * @returns a function to call to unregister the event
+	 */
+	on(event: string, fn: (...args: any[]) => void): () => void {
 		return this._tl.on(event, fn);
 	}
 
 	// not wroking
-	onPromise(event: string) {
+	onPromise(event: string): Promise<unknown> {
 		return this._tl.onPromise(event);
 	}
 

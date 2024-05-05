@@ -1,6 +1,6 @@
-import { takeProp } from '../utils/internal';
-import Timeline from './TimeLine';
-import { timelineAdd } from './public';
+import { takeProp } from '../utils/internal.js';
+import Timeline from './TimeLine.js';
+import { timelineAdd } from './public.js';
 
 export default class NestedTimeline {
 	_defaults: Record<string, any>;
@@ -19,7 +19,7 @@ export default class NestedTimeline {
 	 * Set's properties
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
-	set(targets: any, props: Record<string, any>, offset: any = null) {
+	set(targets: any, props: Record<string, any>, offset: any = null): this {
 		// for the moment let's just add as usual but set the duration to 0
 		return this.add(targets, { ...props, duration: 0 }, offset);
 	}
@@ -29,7 +29,7 @@ export default class NestedTimeline {
 	 *
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
-	add(targets: any, props: Record<string, any>, offset: any = null) {
+	add(targets: any, props: Record<string, any>, offset: any = null): this {
 		timelineAdd(this, targets, props, offset);
 
 		return this;
@@ -40,7 +40,7 @@ export default class NestedTimeline {
 	 *
 	 * This label can then be used in offsets
 	 */
-	label(label: string, offset: any = null) {
+	label(label: string, offset: any = null): this {
 		this._inner.label(label, offset);
 
 		return this;
@@ -55,7 +55,7 @@ export default class NestedTimeline {
 		fn: (tl: NestedTimeline) => void,
 		opts: Record<string, any> = {},
 		offset: any = null,
-	) {
+	): this {
 		const tl = new NestedTimeline(opts);
 
 		fn(tl);

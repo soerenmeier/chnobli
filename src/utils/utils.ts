@@ -1,5 +1,5 @@
-import { Callback } from '../responsive/ResponsiveEvent';
-import { curve } from './motionpath';
+import { Callback } from '../responsive/ResponsiveEvent.js';
+import { curve } from './motionpath.js';
 
 export { curve };
 

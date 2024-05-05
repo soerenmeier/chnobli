@@ -1,6 +1,6 @@
-import Value from '../values/Value';
-import StyleValue from '../values/StyleValue';
-import { Target } from './Target';
+import Value from '../values/Value.js';
+import StyleValue from '../values/StyleValue.js';
+import { Target } from './Target.js';
 
 export type Element = HTMLElement | SVGElement;
 

@@ -1,8 +1,12 @@
-import Timing, { newTiming, STATE_BEFORE, STATE_AFTER } from '../timing/Timing';
+import Timing, {
+	newTiming,
+	STATE_BEFORE,
+	STATE_AFTER,
+} from '../timing/Timing.js';
 
-import Property, { ParseableValue, newProperty } from '../property/Property';
-import Ticker from '../timing/Ticker';
-import { Target } from '../target/Target';
+import Property, { ParseableValue, newProperty } from '../property/Property.js';
+import Ticker from '../timing/Ticker.js';
+import { Target } from '../target/Target.js';
 
 export default class Animation {
 	timing: Timing;

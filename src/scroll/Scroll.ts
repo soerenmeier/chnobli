@@ -1,7 +1,7 @@
-import PublicTimeline from '../timeline/public';
-import { takeProp } from '../utils/internal';
-import { pageOffset } from '../utils/utils';
-import ScrollEvent from './ScrollEvent';
+import PublicTimeline from '../timeline/public.js';
+import { takeProp } from '../utils/internal.js';
+import { pageOffset } from '../utils/utils.js';
+import ScrollEvent from './ScrollEvent.js';
 
 /*
 run animation when in view (start stop resume when different events happen)

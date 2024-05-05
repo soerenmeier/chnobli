@@ -1,5 +1,5 @@
-import Value from '../values/Value';
-import StyleValue from '../values/StyleValue';
+import Value from '../values/Value.js';
+import StyleValue from '../values/StyleValue.js';
 
 export default class BaseTarget<T> {
 	target: T;

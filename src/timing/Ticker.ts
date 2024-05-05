@@ -1,4 +1,4 @@
-import { Target } from '../target/Target';
+import { Target } from '../target/Target.js';
 
 export type Callback = (change: number, api: { remove: () => void }) => void;
 

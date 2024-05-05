@@ -1,4 +1,4 @@
-import { COLORS } from './defaultcolors';
+import { COLORS } from './defaultcolors.js';
 
 export type RGBA = [number, number, number, number];
 export type HSLA = [number, number, number, number];

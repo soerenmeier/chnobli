@@ -1,8 +1,8 @@
-import { Target } from '../target/Target';
-import TransformProperty, { TRANSFORM_PROPS } from './TransformProperty';
-import TransformXYProperty from './TransformXYProperty';
-import StyleProperty, { STYLE_PROPS } from './StyleProperty';
-import ClassProperty from './ClassProperty';
+import { Target } from '../target/Target.js';
+import TransformProperty, { TRANSFORM_PROPS } from './TransformProperty.js';
+import TransformXYProperty from './TransformXYProperty.js';
+import StyleProperty, { STYLE_PROPS } from './StyleProperty.js';
+import ClassProperty from './ClassProperty.js';
 
 export type ParseableValue = string | number | (string | number)[];
 

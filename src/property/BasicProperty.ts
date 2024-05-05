@@ -1,6 +1,6 @@
-import Value from '../values/Value';
-import Property, { ParseableValue } from './Property';
-import { Target } from '../target/Target';
+import Value from '../values/Value.js';
+import Property, { ParseableValue } from './Property.js';
+import { Target } from '../target/Target.js';
 
 export default class BasicProperty implements Property<Value> {
 	/**

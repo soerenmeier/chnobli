@@ -1,4 +1,4 @@
-import { takeProp } from '../utils/internal';
+import { takeProp } from '../utils/internal.js';
 import Timing, {
 	parseEase,
 	parseRepeat,
@@ -6,10 +6,10 @@ import Timing, {
 	parseReversed,
 	STATE_BEFORE,
 	STATE_ENDED,
-} from '../timing/Timing';
-import Ticker from '../timing/Ticker';
-import Animation from '../animation/Animation';
-import AnimationFrameTicker from '../timing/AnimationFrameTicker';
+} from '../timing/Timing.js';
+import Ticker from '../timing/Ticker.js';
+import Animation from '../animation/Animation.js';
+import AnimationFrameTicker from '../timing/AnimationFrameTicker.js';
 
 type Entry = {
 	type: 'label' | 'animation' | 'timeline';
@@ -71,7 +71,7 @@ export default class Timeline {
 		};
 	}
 
-	isFinite() {
+	isFinite(): boolean {
 		return !this.entries.some(e => {
 			return e.type === 'animation' && !e.value.isFinite();
 		});
@@ -84,7 +84,7 @@ export default class Timeline {
 		props: Record<string, any>,
 		offset: any = null,
 		relative = 0,
-	) {
+	): this {
 		const animation = new Animation(target, this.ticker, props);
 
 		if (!animation.isFinite())
@@ -111,7 +111,7 @@ export default class Timeline {
 		});
 	}
 
-	label(label: string, offset: any = null) {
+	label(label: string, offset: any = null): this {
 		this.entries.push({
 			type: 'label',
 			value: label,

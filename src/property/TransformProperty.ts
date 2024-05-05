@@ -1,7 +1,7 @@
-import Value from '../values/Value';
-import BasicProperty from './BasicProperty';
-import { ParseableValue } from './Property';
-import { Target } from '../target/Target';
+import Value from '../values/Value.js';
+import BasicProperty from './BasicProperty.js';
+import { ParseableValue } from './Property.js';
+import { Target } from '../target/Target.js';
 
 export const TRANSFORM_PROPS: Record<string, [number, string | null]> = {
 	x: [0, 'px'],

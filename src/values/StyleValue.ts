@@ -1,5 +1,5 @@
-import Value from './Value';
-import ColorValue from './ColorValue';
+import Value from './Value.js';
+import ColorValue from './ColorValue.js';
 
 const AT_THE_END_VALUES = ['none', 'hidden'];
 

@@ -27,6 +27,9 @@ export function staggerMap(value: any, fn: (v: any) => any) {
 export default class Stagger {
 	private fn: (...args: any[]) => any;
 
+	/**
+	 * @ignore
+	 */
 	constructor(value: any) {
 		if (typeof value === 'function') {
 			this.fn = value;
@@ -37,9 +40,12 @@ export default class Stagger {
 		throw new Error('unknown stagger value ' + value);
 	}
 
-	call(...args: any[]) {
+	call(...args: any[]): any {
 		return this.fn(...args);
 	}
 
+	/**
+	 * @ignore
+	 */
 	__isStagger__() {}
 }

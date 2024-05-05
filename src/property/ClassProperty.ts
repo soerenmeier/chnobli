@@ -1,5 +1,5 @@
-import { Target } from '../target/Target';
-import Property, { type ParseableValue } from './Property';
+import { Target } from '../target/Target.js';
+import Property, { type ParseableValue } from './Property.js';
 
 export type Interpolated = {
 	add: string[];

@@ -1,6 +1,6 @@
-import Value from '../values/Value';
-import DomTarget from './DomTarget';
-import StyleValue from '../values/StyleValue';
+import Value from '../values/Value.js';
+import DomTarget from './DomTarget.js';
+import StyleValue from '../values/StyleValue.js';
 
 export function newTarget(target: any): Target {
 	if (typeof window === 'undefined') {

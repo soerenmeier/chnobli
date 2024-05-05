@@ -1,4 +1,4 @@
-import { takeProp } from '../utils/internal';
+import { takeProp } from '../utils/internal.js';
 
 export const STATE_BEFORE = 0;
 /// start only occurs if the current position is exactly 0 or 1 if reversed

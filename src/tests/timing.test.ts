@@ -5,7 +5,7 @@ import Timing, {
 	STATE_RUNNING,
 	STATE_ENDED,
 	STATE_AFTER,
-} from '../timing/Timing';
+} from '../timing/Timing.js';
 
 describe('timing', () => {
 	it('zero duration', () => {

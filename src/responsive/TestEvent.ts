@@ -1,4 +1,4 @@
-import { Callback } from './ResponsiveEvent';
+import { Callback } from './ResponsiveEvent.js';
 
 export default class TestResponsiveEvent {
 	private _listeners: Set<Callback>;

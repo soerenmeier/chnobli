@@ -1,8 +1,8 @@
-import StyleValue from '../values/StyleValue';
-import Property, { ParseableValue } from './Property';
-import Value from '../values/Value';
-import { Target } from '../target/Target';
-import ColorValue, { RGBA } from '../values/ColorValue';
+import StyleValue from '../values/StyleValue.js';
+import Property, { ParseableValue } from './Property.js';
+import Value from '../values/Value.js';
+import { Target } from '../target/Target.js';
+import ColorValue, { RGBA } from '../values/ColorValue.js';
 
 export const STYLE_PROPS: Record<string, string | [number, string | null]> = {
 	position: 'static',

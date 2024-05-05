@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import TestTicker from '../timing/TestTicker';
-import TestResponsiveEvent from '../responsive/TestEvent';
-import { animate, timeline } from '../chnobli';
-import { responsive } from '../utils/utils';
-import { el } from '../target/TestDomNode';
+import TestTicker from '../timing/TestTicker.js';
+import TestResponsiveEvent from '../responsive/TestEvent.js';
+import { animate, timeline } from '../chnobli.js';
+import { responsive } from '../utils/utils.js';
+import { el } from '../target/TestDomNode.js';
 
 describe('usecases', () => {
 	it('accordion', () => {
