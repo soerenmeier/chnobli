@@ -12,11 +12,11 @@ the scroll position
 
 {
 	start: myDiv,
-	// when the top of myDiv is at the center of the viewport
-	startView: 'center',
+	// when the top of myDiv is at the top of the viewport
 	end: {
 		target: myDiv,
-		offset: 'bottom'
+		offset: 'bottom',
+		view: 'bottom'
 	}
 	// when the bottom of myDiv is at the bottom of the viewport
 }
@@ -48,6 +48,7 @@ parallax
 type StartEndOffset = {
 	target: HTMLElement;
 	offset: number;
+	view: number;
 };
 
 export type Start = {
@@ -90,13 +91,13 @@ export default class Scroll {
 			// px
 			y: 0,
 			// percentage
-			view: parseOffset(takeProp(props, 'startView', 'top')),
+			view: this._start.view,
 		};
 		this.end = {
 			// px
 			y: 0,
 			// percentage
-			view: parseOffset(takeProp(props, 'endView', 'bottom')),
+			view: this._end?.view ?? 1,
 		};
 
 		this.timelines = [];
@@ -146,7 +147,7 @@ export default class Scroll {
  * can be an HTMLElement or an object { target, offset }
  *
  * the default offset is top
- *
+ * the default view is top
  */
 function parseStart(val: any): StartEndOffset {
 	// might be an object { target, offset }
@@ -158,6 +159,7 @@ function parseStart(val: any): StartEndOffset {
 
 	let element = null;
 	let offset = 'top';
+	let view = 'top';
 
 	if (typeof val === 'object') {
 		if (val instanceof HTMLElement) {
@@ -165,6 +167,7 @@ function parseStart(val: any): StartEndOffset {
 		} else if ('target' in val) {
 			element = val.target;
 			if (typeof val.offset !== 'undefined') offset = val.offset;
+			if (typeof val.view !== 'undefined') view = val.view;
 		} else {
 			throw new Error('start unknown ' + val);
 		}
@@ -175,15 +178,17 @@ function parseStart(val: any): StartEndOffset {
 	return {
 		target: element,
 		offset: parseOffset(offset),
+		view: parseOffset(view),
 	};
 }
 
 /**
  * Parse the end property
  *
- * can be an HTMLElement or an object { target, offset }
+ * can be an HTMLElement or an object { target, offset, view }
  *
  * the default offset is top
+ * the default view is bottom
  */
 function parseEnd(val: any): StartEndOffset | null {
 	// might be an object { target, offset }
@@ -191,12 +196,14 @@ function parseEnd(val: any): StartEndOffset | null {
 
 	let element = null;
 	let offset = 'top';
+	let view = 'bottom';
 
 	if (typeof val === 'object') {
 		if (val instanceof HTMLElement) element = val;
 		else if ('target' in val) {
 			element = val.target;
 			if (typeof val.offset !== 'undefined') offset = val.offset;
+			if (typeof val.view !== 'undefined') view = val.view;
 		} else {
 			throw new Error('start unknown ' + val);
 		}
@@ -207,6 +214,7 @@ function parseEnd(val: any): StartEndOffset | null {
 	return {
 		target: element,
 		offset: parseOffset(offset),
+		view: parseOffset(view),
 	};
 }
 
