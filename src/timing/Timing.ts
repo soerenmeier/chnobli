@@ -12,6 +12,14 @@ export type Position = {
 	progress: number;
 };
 
+export type TimingProps = {
+	duration: number;
+	ease?: (t: number) => number;
+	repeat?: number;
+	alternate?: boolean;
+	reversed?: boolean;
+};
+
 /**
  * This class handles everything timing related
  *
@@ -58,7 +66,7 @@ export default class Timing {
 		alternate
 	}
 	*/
-	constructor(props: Record<string, any>) {
+	constructor(props: TimingProps) {
 		// these vars are only readonly
 		// use functions to update them
 
@@ -90,6 +98,7 @@ export default class Timing {
 	}
 
 	positionMs() {
+		// todo should this not return pos * duration?
 		return this.position * this.iterDuration;
 	}
 
@@ -132,6 +141,31 @@ export default class Timing {
 		}
 
 		this._updateProgress(ms / this.iterDuration);
+
+		// return this.seek(this.normalizeMs(ms));
+	}
+
+	normalizeMs(ms: number) {
+		if (this.iterDuration <= 0) {
+			return Math.sign(ms);
+		}
+
+		const pos = ms / this.iterDuration;
+
+		if (this.isFinite()) {
+			return pos / (this.repeat + 1);
+		}
+
+		return pos;
+	}
+
+	// todo how to call this
+	positionLinear(): number {
+		if (this.isFinite()) {
+			return this._progress / (this.repeat + 1);
+		}
+
+		return this._progress;
 	}
 
 	// should be between 0-1 if outside might change the state
@@ -241,7 +275,7 @@ export default class Timing {
 	}
 }
 
-export function newTiming(props: Record<string, any>) {
+export function newTiming(props: Record<string, any>): Timing {
 	const nProps = {
 		duration: parseDuration(takeProp(props, 'duration', 1000)),
 		ease: parseEase(takeProp(props, 'ease', null)),
@@ -253,7 +287,7 @@ export function newTiming(props: Record<string, any>) {
 	return new Timing(nProps);
 }
 
-export function parseDuration(dur: any) {
+export function parseDuration(dur: any): number {
 	if (typeof dur !== 'number') throw new Error('duration is not a number');
 
 	dur = Math.round(dur);

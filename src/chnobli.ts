@@ -28,6 +28,9 @@ export function stagger(value: any): Stagger {
 	return new Stagger(value);
 }
 
+/**
+ * Create a scroll animation
+ */
 export function scroll(props: Record<string, any> = {}): Scroll {
 	return new Scroll(props);
 }

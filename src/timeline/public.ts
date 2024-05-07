@@ -1,6 +1,6 @@
 import { takeProp } from '../utils/internal.js';
-import Timeline from './TimeLine.js';
-import { STATE_ENDED } from '../timing/Timing.js';
+import Timeline from './Timeline.js';
+import Timing, { STATE_ENDED, TimingProps } from '../timing/Timing.js';
 import { callStagger } from '../stagger/stagger.js';
 import Events from '../utils/Events.js';
 import ResponsiveEvent from '../responsive/ResponsiveEvent.js';
@@ -8,10 +8,30 @@ import NestedTimeline from './Nested.js';
 
 const STATE_PAUSED = 0;
 const STATE_RENDER_ONCE = 1;
-const STATE_PLAYING = 2;
+const STATE_SEEK = 2;
+const STATE_PLAYING = 3;
 
 export type Responsive = {
 	responsive: () => void;
+};
+
+export type TimelineProps = {
+	// default properties for all animations
+	defaults?: Record<string, any>;
+
+	// make the timeline responsive default is true
+	// this means the timeline will update on resize
+	responsive?: boolean;
+
+	// ease
+	ease?: (t: number) => number;
+
+	// repeat
+	// alternate
+	// reversed
+
+	// other properties
+	[key: string]: any;
 };
 
 export default class PublicTimeline {
@@ -33,6 +53,7 @@ export default class PublicTimeline {
 	private _runningTicker: any;
 	private _responsiveBlocks: { responsive: () => void }[];
 	private _responsiveEvent: any;
+	private _smoothSeek: SmoothSeek | null;
 
 	constructor(props: Record<string, any> = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
@@ -42,6 +63,8 @@ export default class PublicTimeline {
 			throw new Error('responsive can only be a boolean');
 		if ('duration' in props)
 			throw new Error('a timeline does not accept a duration');
+
+		this._smoothSeek = parseSmoothSeek(takeProp(props, 'smoothSeek', null));
 
 		this._inner = new Timeline(props);
 
@@ -70,6 +93,7 @@ export default class PublicTimeline {
 
 	/**
 	 * Set's properties
+	 *
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
 	set(targets: any, props: Record<string, any>, offset = null): this {
@@ -89,7 +113,7 @@ export default class PublicTimeline {
 	}
 
 	/**
-	 * Adds a label at to the current nOffse
+	 * Adds a label at to the current nOffset
 	 *
 	 * This label can then be used in offsets
 	 */
@@ -170,12 +194,13 @@ export default class PublicTimeline {
 	seekMs(ms: number) {
 		this._inner.init();
 
-		this._inner.seekMs(ms);
-
-		if (this._state !== STATE_PLAYING) this._state = STATE_RENDER_ONCE;
-
-		this._startTicker();
+		this.seek(this._inner.timing.normalizeMs(ms));
 	}
+
+	// todo maybe we should have two functions
+	// seek
+	// and setPosition
+	// seek would include reverse but setPosition would not
 
 	/**
 	 * Seeks to a normalized position in the timeline
@@ -185,9 +210,15 @@ export default class PublicTimeline {
 	seek(pos: number) {
 		this._inner.init();
 
-		this._inner.seek(pos);
+		if (this._smoothSeek) {
+			this._smoothSeek.update(this._inner.timing.positionLinear(), pos);
 
-		if (this._state !== STATE_PLAYING) this._state = STATE_RENDER_ONCE;
+			if (this._state !== STATE_PLAYING) this._state = STATE_SEEK;
+		} else {
+			this._inner.seek(pos);
+
+			if (this._state !== STATE_PLAYING) this._state = STATE_RENDER_ONCE;
+		}
 
 		this._startTicker();
 	}
@@ -198,6 +229,8 @@ export default class PublicTimeline {
 	/**
 	 * Resets the current timeline to the start
 	 * without changing anything
+	 *
+	 * this operation is not smooth use seek 0 if you wan't that
 	 */
 	reset() {
 		this._inner.seek(0);
@@ -244,6 +277,8 @@ export default class PublicTimeline {
 	 */
 	reverse() {
 		this._inner.timing.reverse();
+
+		// todo does this work with smooth seek?
 	}
 
 	/**
@@ -280,6 +315,10 @@ export default class PublicTimeline {
 		this._inner = null;
 	}
 
+	_maybeTriggerEndEvent() {
+		if (this._state === STATE_PLAYING) this._events.trigger('end');
+	}
+
 	/**
 	 * @ignore
 	 */
@@ -288,19 +327,33 @@ export default class PublicTimeline {
 
 		this._inner.init();
 
+		const timingEnded = () => this._inner.timing.state >= STATE_ENDED;
+		const smoothSeekEnded = () =>
+			!this._smoothSeek || this._smoothSeek.state >= STATE_ENDED;
+
 		this._runningTicker = this._inner.ticker.add(change => {
-			if (this._inner.timing.state >= STATE_ENDED) {
+			// stop the ticker if we the animation has ended
+
+			if (timingEnded() && smoothSeekEnded()) {
+				// make sure we render once
+				// else the animation might be in the wrong state
 				if (!this._renderedOnce) {
 					this._renderedOnce = true;
 					this._inner.render();
+
+					// we can ignore smooth seek here since if the timing
+					// is state ended this means smooth seek is not active
+					// or has already reached the end
 				}
 
-				if (this._state === STATE_PLAYING) this._events.trigger('end');
+				this._maybeTriggerEndEvent();
 
 				this._state = STATE_PAUSED;
 				this._stopTicker();
 				return;
 			}
+
+			// space
 
 			// if (this._inner.timing.state <= STATE_START) {
 			// 	this._events.trigger('start');
@@ -312,24 +365,30 @@ export default class PublicTimeline {
 			// 	return;
 			// }
 
-			if (this._state === STATE_PLAYING) this._inner.advance(change);
-
-			// todo when we add smooth seeks we need to update this
+			const allowSmoothSeek =
+				this._state === STATE_PLAYING || this._state === STATE_SEEK;
+			if (
+				allowSmoothSeek &&
+				this._smoothSeek &&
+				this._smoothSeek.state < STATE_ENDED
+			) {
+				this._smoothSeek.advance(change);
+				this._inner.seek(this._smoothSeek.value);
+			} else if (this._state === STATE_PLAYING) {
+				this._inner.advance(change);
+			}
 
 			this._inner.render();
 
-			if (this._inner.timing.state >= STATE_ENDED) {
-				if (this._state === STATE_PLAYING) this._events.trigger('end');
+			// we rendered once let's stop
+			const renderOnce = this._state === STATE_RENDER_ONCE;
+
+			if (renderOnce || (timingEnded() && smoothSeekEnded())) {
+				this._maybeTriggerEndEvent();
 
 				this._state = STATE_PAUSED;
 				this._stopTicker();
 				return;
-			}
-
-			// we rendered once let's stop
-			if (this._state === STATE_RENDER_ONCE) {
-				this._state = STATE_PAUSED;
-				this._stopTicker();
 			}
 		});
 	}
@@ -387,5 +446,56 @@ export function timelineAdd(
 		const nOffset = callStagger(offset, i);
 
 		tl._inner.add(target, nProps, nOffset, i);
+	}
+}
+
+/**
+ * Smooth seek
+ *
+ * can either just be a number (duration) or an object { duration, ease }
+ */
+function parseSmoothSeek(smoothSeek: any): SmoothSeek | null {
+	if (!smoothSeek) return null;
+
+	if (typeof smoothSeek === 'number') {
+		return new SmoothSeek({
+			duration: smoothSeek,
+		});
+	}
+
+	return new SmoothSeek({
+		duration: smoothSeek?.duration,
+		ease: smoothSeek?.ease,
+	});
+}
+
+class SmoothSeek {
+	timing: Timing;
+	from: number;
+	to: number;
+
+	constructor(timing: TimingProps) {
+		this.timing = new Timing(timing);
+		this.timing.seek(1);
+		this.from = 0;
+		this.to = 0;
+	}
+
+	update(from: number, to: number) {
+		this.from = from;
+		this.to = to;
+		this.timing.seek(0);
+	}
+
+	advance(change: number) {
+		this.timing.advance(change);
+	}
+
+	get value(): number {
+		return this.from + (this.to - this.from) * this.timing.position;
+	}
+
+	get state(): number {
+		return this.timing.state;
 	}
 }

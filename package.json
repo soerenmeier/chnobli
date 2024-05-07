@@ -10,7 +10,7 @@
 		"test": "node --expose-gc ./node_modules/.bin/vitest run",
 		"test:watch": "node --expose-gc ./node_modules/.bin/vitest",
 		"build": "tsc -p tsconfig.build.json",
-		"watch": "tsc -w"
+		"watch": "tsc -w -p tsconfig.build.json"
 	},
 	"repository": {
 		"type": "git",

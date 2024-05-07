@@ -24,7 +24,7 @@ type Entry = {
  * Timeline is the most versatile class
  *
  * A timeline can contain multiple animation, ordered one after the other or
- * offset.
+ * by an offset.
  */
 export default class Timeline {
 	timing: Timing;
@@ -49,6 +49,8 @@ export default class Timeline {
 	*/
 	constructor(props: Record<string, any> = {}) {
 		const nProps = {
+			// duration here is not important since it will be calculated
+			// based on the animations that get added
 			duration: 1000,
 			ease: parseEase(takeProp(props, 'ease', null)),
 			repeat: parseRepeat(takeProp(props, 'repeat', false)),
@@ -254,6 +256,9 @@ export default class Timeline {
 		}
 	}
 
+	/**
+	 * Updates the timings of all animations
+	 */
 	_updateTimings() {
 		this._renderQueue = {
 			upcoming: [],

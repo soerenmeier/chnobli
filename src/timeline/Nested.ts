@@ -1,5 +1,5 @@
 import { takeProp } from '../utils/internal.js';
-import Timeline from './TimeLine.js';
+import Timeline from './Timeline.js';
 import { timelineAdd } from './public.js';
 
 export default class NestedTimeline {
