@@ -1,9 +1,19 @@
-import Animation from './animation/public.js';
+import Animation, { AnimationProps } from './animation/public.js';
 import Timeline from './timeline/public.js';
 import Scroll from './scroll/public.js';
-import Stagger from './stagger/stagger.js';
+import Stagger, { type StaggerValue } from './stagger/stagger.js';
+import type { Targets, AnimationTarget } from './target/Target.js';
 
-export type { Animation, Timeline, Stagger, Scroll };
+export type {
+	Animation,
+	Timeline,
+	Stagger,
+	Scroll,
+	Targets,
+	AnimationTarget,
+	StaggerValue,
+	AnimationProps,
+};
 
 // todo maybe add, to, from and fromTo to the animate function
 
@@ -14,8 +24,8 @@ export type { Animation, Timeline, Stagger, Scroll };
  *
  */
 export function animate(
-	targets: any,
-	props: Record<string, any> = {},
+	targets: Targets,
+	props: AnimationProps = {},
 ): Animation {
 	return new Animation(targets, props);
 }
@@ -24,7 +34,7 @@ export function timeline(props: Record<string, any> = {}): Timeline {
 	return new Timeline(props);
 }
 
-export function stagger(value: any): Stagger {
+export function stagger<O>(value: StaggerValue<O>): Stagger<O> {
 	return new Stagger(value);
 }
 

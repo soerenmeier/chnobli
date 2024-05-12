@@ -59,10 +59,24 @@ export function chars(element: HTMLElement) {
 		.filter(c => !!c);
 }
 
+export type WordCallback = (element: HTMLElement, word: string) => HTMLElement;
+
+function defWordCallback(element: HTMLElement, word: string): HTMLElement {
+	const span = document.createElement('span');
+	span.textContent = word;
+	span.style.display = 'inline-block';
+	element.appendChild(span);
+
+	return span;
+}
+
 /**
  * Converts an element with text into span with words
  */
-export function words(element: HTMLElement) {
+export function words(
+	element: HTMLElement,
+	cb: WordCallback = defWordCallback,
+) {
 	if (element.dataset.processedWords) return Array.from(element.children);
 
 	const words = element.textContent!.split(/(\s+)/);
@@ -77,12 +91,7 @@ export function words(element: HTMLElement) {
 				return null;
 			}
 
-			const span = document.createElement('span');
-			span.textContent = word;
-			span.style.display = 'inline-block';
-			element.appendChild(span);
-
-			return span;
+			return cb(element, word);
 		})
 		.filter(w => !!w);
 }

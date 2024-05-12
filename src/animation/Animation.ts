@@ -116,6 +116,7 @@ class PropertyAnimation<V> {
 	private valueFn: ((pos: number) => ParseableValue) | null;
 
 	private iniResponsive: any;
+	// todo i don't think the types match here?
 	private iniFrom: V | null;
 	private iniTo: V | null;
 
@@ -166,8 +167,7 @@ class PropertyAnimation<V> {
 
 		// init via responsive fn
 		if (this.iniResponsive) {
-			// todo this access to target can't be
-			const value = this.iniResponsive((target as any).target);
+			const value = this.iniResponsive(target.inner());
 
 			if (typeof value === 'object') {
 				if ('from' in value) from = this.prop.parseValue(value.from);

@@ -1,6 +1,20 @@
 import { takeProp } from '../utils/internal.js';
 import Timeline from '../timeline/public.js';
-import { staggerMap } from '../stagger/stagger.js';
+import { StaggerValue, staggerMap } from '../stagger/stagger.js';
+import { Targets } from 'src/chnobli.js';
+
+export type AnimationProps = {
+	autoplay?: boolean;
+	delay?: number | string | StaggerValue<number | string>;
+
+	ease?: (t: number) => number;
+
+	onStart?: () => void;
+	onEnd?: () => void;
+
+	// other properties
+	[key: string]: any;
+};
 
 /**
  * The animation consist of a timeline with just one animation
@@ -12,15 +26,35 @@ import { staggerMap } from '../stagger/stagger.js';
 export default class PublicAnimation {
 	private _tl: Timeline;
 
-	constructor(targets: any, props: Record<string, any> = {}) {
+	constructor(targets: Targets, props: AnimationProps = {}) {
 		const autoplay = parseAutoplay(takeProp(props, 'autoplay', true));
-		const delay = takeProp(props, 'delay', 0);
+		const delay = takeProp<number>(props, 'delay', 0);
 
 		// we don't wan't the ease and duration on the timeline
-		const ease = takeProp(props, 'ease', null);
-		const duration = takeProp(props, 'duration', null);
+		const ease = takeProp<AnimationProps['ease']>(props, 'ease', undefined);
+		const duration = takeProp<number | undefined>(
+			props,
+			'duration',
+			undefined,
+		);
 
 		this._tl = new Timeline(props);
+
+		// events
+		const onStart = takeProp<AnimationProps['onStart']>(
+			props,
+			'onStart',
+			undefined,
+		);
+		if (onStart) this._tl.on('start', onStart);
+
+		// events
+		const onEnd = takeProp<AnimationProps['onEnd']>(
+			props,
+			'onEnd',
+			undefined,
+		);
+		if (onEnd) this._tl.on('end', onEnd);
 
 		props.ease = ease;
 		props.duration = duration;

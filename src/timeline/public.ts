@@ -1,10 +1,15 @@
 import { takeProp } from '../utils/internal.js';
 import Timeline from './Timeline.js';
-import Timing, { STATE_ENDED, TimingProps } from '../timing/Timing.js';
-import { callStagger } from '../stagger/stagger.js';
+import Timing, {
+	STATE_BEFORE,
+	STATE_ENDED,
+	TimingProps,
+} from '../timing/Timing.js';
+import Stagger, { callStagger } from '../stagger/stagger.js';
 import Events from '../utils/Events.js';
 import ResponsiveEvent from '../responsive/ResponsiveEvent.js';
 import NestedTimeline from './Nested.js';
+import { Targets } from '../chnobli.js';
 
 const STATE_PAUSED = 0;
 const STATE_RENDER_ONCE = 1;
@@ -26,6 +31,9 @@ export type TimelineProps = {
 	// ease
 	ease?: (t: number) => number;
 
+	// smoothSeek
+	smoothSeek?: SmoothSeekValue;
+
 	// repeat
 	// alternate
 	// reversed
@@ -33,6 +41,8 @@ export type TimelineProps = {
 	// other properties
 	[key: string]: any;
 };
+
+export type Offset = number | string | Stagger<number | string>;
 
 export default class PublicTimeline {
 	/**
@@ -47,6 +57,7 @@ export default class PublicTimeline {
 	_inner: Timeline;
 
 	private _events: Events;
+	private _triggeredStart: boolean;
 
 	private _state: number;
 	private _renderedOnce: boolean;
@@ -55,7 +66,7 @@ export default class PublicTimeline {
 	private _responsiveEvent: any;
 	private _smoothSeek: SmoothSeek | null;
 
-	constructor(props: Record<string, any> = {}) {
+	constructor(props: TimelineProps = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
 		this._responsive = takeProp(props, 'responsive', true);
 
@@ -64,12 +75,15 @@ export default class PublicTimeline {
 		if ('duration' in props)
 			throw new Error('a timeline does not accept a duration');
 
-		this._smoothSeek = parseSmoothSeek(takeProp(props, 'smoothSeek', null));
+		this._smoothSeek = parseSmoothSeek(
+			takeProp<SmoothSeekValue>(props, 'smoothSeek', undefined),
+		);
 
 		this._inner = new Timeline(props);
 
 		// 'start', 'end'
 		this._events = new Events();
+		this._triggeredStart = false;
 
 		this._state = STATE_PAUSED;
 		this._renderedOnce = false;
@@ -96,7 +110,7 @@ export default class PublicTimeline {
 	 *
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
-	set(targets: any, props: Record<string, any>, offset = null): this {
+	set(targets: Targets, props: Record<string, any>, offset?: Offset): this {
 		// for the moment let's just add as usual but set the duration to 0
 		return this.add(targets, { ...props, duration: 0 }, offset);
 	}
@@ -106,7 +120,7 @@ export default class PublicTimeline {
 	 *
 	 * offset can be staggered, a number, a label or a string `+=10`
 	 */
-	add(targets: any, props: Record<string, any>, offset = null): this {
+	add(targets: Targets, props: Record<string, any>, offset?: Offset): this {
 		timelineAdd(this, targets, props, offset);
 
 		return this;
@@ -316,7 +330,10 @@ export default class PublicTimeline {
 	}
 
 	_maybeTriggerEndEvent() {
-		if (this._state === STATE_PLAYING) this._events.trigger('end');
+		if (this._state !== STATE_PLAYING) return;
+
+		this._events.trigger('end');
+		this._triggeredStart = false;
 	}
 
 	/**
@@ -351,6 +368,14 @@ export default class PublicTimeline {
 				this._state = STATE_PAUSED;
 				this._stopTicker();
 				return;
+			}
+
+			if (this._state === STATE_PLAYING && !this._triggeredStart) {
+				// todo check that we are at the start
+				if (this._inner.timing.state <= STATE_BEFORE) {
+					this._events.trigger('start');
+					this._triggeredStart = true;
+				}
 			}
 
 			// space
@@ -449,12 +474,17 @@ export function timelineAdd(
 	}
 }
 
+export type SmoothSeekValue =
+	| number
+	| undefined
+	| { duration: number; ease?: (t: number) => number };
+
 /**
  * Smooth seek
  *
  * can either just be a number (duration) or an object { duration, ease }
  */
-function parseSmoothSeek(smoothSeek: any): SmoothSeek | null {
+function parseSmoothSeek(smoothSeek: SmoothSeekValue): SmoothSeek | null {
 	if (!smoothSeek) return null;
 
 	if (typeof smoothSeek === 'number') {
@@ -464,7 +494,7 @@ function parseSmoothSeek(smoothSeek: any): SmoothSeek | null {
 	}
 
 	return new SmoothSeek({
-		duration: smoothSeek?.duration,
+		duration: smoothSeek.duration,
 		ease: smoothSeek?.ease,
 	});
 }

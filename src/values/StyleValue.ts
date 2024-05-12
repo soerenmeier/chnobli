@@ -168,7 +168,7 @@ export default class StyleValue {
 		);
 	}
 
-	toString() {
+	toString(): string {
 		switch (this.inner.kind) {
 			case 'text':
 				return this.inner.values;
