@@ -41,13 +41,13 @@ export default class StyleProperty
 
 	private _defaultValue: StyleValue | null;
 
-	constructor(name: string) {
+	constructor(name: string, useDefaults: boolean = true) {
 		this.name = name;
 
 		this.from = null;
 		this.to = null;
 
-		const def = STYLE_PROPS[name];
+		const def = useDefaults ? STYLE_PROPS[name] : undefined;
 		if (Array.isArray(def)) {
 			this._defaultValue = new StyleValue([new Value(def[0], def[1])]);
 			this.unit = def[1];

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/TestTicker.js';
 import TestResponsiveEvent from '../responsive/TestEvent.js';
 import { animate, timeline } from '../chnobli.js';
-import { responsive, curve } from '../utils/utils.js';
+import { responsive, curve, fromTo } from '../utils/utils.js';
 import { el } from '../target/TestDomNode.js';
 import { timeout } from 'fire/utils';
 
@@ -179,5 +179,55 @@ describe('properties', () => {
 		expect(div.style.transform).toBe(
 			'translate3d(50.000px,20.000px,0.000px)',
 		);
+	});
+
+	it('object-target', () => {
+		const ticker = new TestTicker();
+
+		const obj: { x: number; width?: number } = {
+			x: 0,
+		};
+		const tl = timeline()
+			.add(obj, {
+				x: 100,
+				width: fromTo(0, 100),
+				duration: 10,
+			})
+			.play();
+
+		ticker.run(5);
+		expect(obj.x).toBe(50);
+		expect(obj.width).toBe(50);
+
+		ticker.run();
+		expect(obj.x).toBe(100);
+		expect(obj.width).toBe(100);
+
+		tl.reverse();
+		tl.play();
+		ticker.run();
+		expect(obj.x).toBe(undefined);
+		expect(obj.width).toBe(undefined);
+	});
+
+	it('reset values', () => {
+		const ticker = new TestTicker();
+
+		const div = el();
+		div.computedStyle.width = '0px';
+		const tl = timeline()
+			.add(div, {
+				width: 100,
+				duration: 10,
+			})
+			.play();
+
+		ticker.run();
+		expect(div.style.width).toBe('100.000px');
+
+		tl.reverse();
+		tl.play();
+		ticker.run();
+		expect(div.style.width).toBe(undefined);
 	});
 });

@@ -183,4 +183,16 @@ export default class StyleValue {
 				throw new Error('unknown kind ' + this.kind);
 		}
 	}
+
+	// returns the value as a number if possible otherwise as a string
+	toMixed(): string | number {
+		if (this.inner.kind !== 'values' || this.inner.values.length !== 1)
+			return this.toString();
+
+		// length already checks that kind is values
+		const val = (this.inner.values as Value[])[0];
+
+		if (val.unit) return this.toString();
+		return val.num;
+	}
 }

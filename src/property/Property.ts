@@ -20,6 +20,8 @@ export default interface Property<V, I = V> {
 }
 
 export function newProperty(prop: string, targetType = ''): Property<any> {
+	if (targetType === 'object') return new StyleProperty(prop, false);
+
 	if (targetType !== 'dom')
 		throw new Error('only dom is supported as target');
 

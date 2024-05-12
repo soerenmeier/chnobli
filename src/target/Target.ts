@@ -1,6 +1,15 @@
 import Value from '../values/Value.js';
 import DomTarget from './DomTarget.js';
 import StyleValue from '../values/StyleValue.js';
+import type TestDomNode from './TestDomNode.js';
+import ObjectTarget from './ObjectTarget.js';
+
+export type Targets = AnimationTarget | AnimationTarget[];
+export type AnimationTarget =
+	| HTMLElement
+	| SVGElement
+	| TestDomNode
+	| Record<string, any>;
 
 export function newTarget(target: any): Target {
 	if (typeof window === 'undefined') {
@@ -17,6 +26,10 @@ export function newTarget(target: any): Target {
 				getRootElement: () => document.documentElement,
 			});
 		}
+	}
+
+	if (typeof target === 'object' && target !== null) {
+		return new ObjectTarget(target);
 	}
 
 	throw new Error('unknown target');
