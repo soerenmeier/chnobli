@@ -1,50 +1,10 @@
 {
-	"name": "chnobli",
-	"version": "0.1.8",
-	"author": "Sören Meier <info@soerenmeier.ch>",
-	"type": "module",
+	"name": "chnobli-workspace",
+	"workspaces": [
+		"chnobli"
+	],
 	"scripts": {
-		"docs": "jsdoc -c jsdoc.conf.json",
-		"check": "tsc",
-		"lint": "eslint ./src",
-		"test": "node --expose-gc ./node_modules/.bin/vitest run",
-		"test:watch": "node --expose-gc ./node_modules/.bin/vitest",
-		"build": "tsc -p tsconfig.build.json",
-		"watch": "tsc -w -p tsconfig.build.json"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/soerenmeier/chnobli.git"
-	},
-	"license": "MIT",
-	"exports": {
-		"./easing": {
-			"import": "./dist/timing/easing.js",
-			"types": "./dist/timing/easing.d.ts"
-		},
-		"./utils": {
-			"import": "./dist/utils/utils.js",
-			"types": "./dist/utils/utils.d.ts"
-		},
-		"./scroll": {
-			"import": "./dist/scroll/index.js",
-			"types": "./dist/scroll/index.d.ts"
-		},
-		".": {
-			"import": "./dist/chnobli.js",
-			"types": "./dist/chnobli.d.ts"
-		}
-	},
-	"devDependencies": {
-		"eslint": "^8.45.0",
-		"jsdoc": "^4.0.2",
-		"prettier": "^3.2.4",
-		"tslib": "^2.6.2",
-		"typescript": "^5.1.6",
-		"vitest": "^1.1.3"
-	},
-	"dependencies": {
-		"bezier-easing": "^2.1.0",
-		"fire": "npm:fire-lib-js@^0.3.0-alpha.11"
+		"test": "npm run test --workspaces",
+		"build": "npm run build --workspaces"
 	}
 }
