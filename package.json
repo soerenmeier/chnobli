@@ -1,7 +1,8 @@
 {
 	"name": "chnobli-workspace",
 	"workspaces": [
-		"chnobli"
+		"chnobli",
+		"chnobli-svelte"
 	],
 	"scripts": {
 		"test": "npm run test --workspaces",
