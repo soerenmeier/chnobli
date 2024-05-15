@@ -361,27 +361,6 @@ export default class PublicTimeline {
 			!this._smoothSeek || this._smoothSeek.state >= STATE_ENDED;
 
 		this._runningTicker = this._inner.ticker.add(change => {
-			// stop the ticker if we the animation has ended
-
-			if (timingEnded() && smoothSeekEnded()) {
-				// make sure we render once
-				// else the animation might be in the wrong state
-				if (!this._renderedOnce) {
-					this._renderedOnce = true;
-					this._inner.render();
-
-					// we can ignore smooth seek here since if the timing
-					// is state ended this means smooth seek is not active
-					// or has already reached the end
-				}
-
-				this._maybeTriggerEndEvent();
-
-				this._state = STATE_PAUSED;
-				this._stopTicker();
-				return;
-			}
-
 			if (!this._triggeredStart) {
 				// todo check that we are at the start
 				if (this._inner.timing.state <= STATE_BEFORE) {
@@ -389,18 +368,6 @@ export default class PublicTimeline {
 					this._triggeredStart = true;
 				}
 			}
-
-			// space
-
-			// if (this._inner.timing.state <= STATE_START) {
-			// 	this._events.trigger('start');
-			// }
-
-			// if (this._inner.timing.state >= STATE_ENDED) {
-			// 	this._stopTicker();
-			// 	this._events.trigger('end');
-			// 	return;
-			// }
 
 			const allowSmoothSeek =
 				this._state === STATE_PLAYING || this._state === STATE_SEEK;
