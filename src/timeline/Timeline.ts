@@ -147,6 +147,21 @@ export default class Timeline {
 		this._updateTimings();
 	}
 
+	/**
+	 * Returns the position of a label
+	 *
+	 * needs to be initialized
+	 */
+	labelPosition(label: string): number {
+		const entry = this.entries.find(e => {
+			return e.type === 'label' && e.value === label;
+		});
+
+		if (!entry) throw new Error('could not find label ' + label);
+
+		return entry.start! / this.timing.duration;
+	}
+
 	init() {
 		if (this._initialized) return;
 		this._initialized = true;

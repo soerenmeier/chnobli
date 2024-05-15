@@ -1,5 +1,4 @@
-import PublicTimeline from '../timeline/public.js';
-import { takeProp } from '../utils/internal.js';
+import PublicTimeline, { Offset } from '../timeline/public.js';
 import { pageOffset } from '../utils/utils.js';
 import ScrollEvent from './ScrollEvent.js';
 
@@ -45,65 +44,76 @@ scroll pin (once in trigger zone, elements keeps it position relative to start o
 parallax
 */
 
-type StartEndOffset = {
+export type ScrollTrigger =
+	| {
+			target: HTMLElement;
+			offset?: OffsetValue;
+			view?: OffsetValue;
+	  }
+	| HTMLElement;
+
+export type OffsetValue = 'top' | 'center' | 'bottom' | number;
+
+export type ParsedScrollTrigger = {
 	target: HTMLElement;
 	offset: number;
 	view: number;
+	position: Position;
 };
 
-export type Start = {
-	// the start offset in pixels
+export type ScrollOffset = {
+	// the offset in pixels
 	y: number;
-	// the start offset in percentage (0-1)
+	// the offset in percentage (0-1)
 	view: number;
+	// position
+	position: number;
 };
 
-export type End = {
-	// the end offset in pixels
-	y: number;
-	// the end offset in percentage (0-1)
-	view: number;
-};
+export type Position = number | string;
 
-export default class Scroll {
-	// the start offset provided by the user
-	private _start: StartEndOffset;
-	// the end offset provided by the user
-	private _end: StartEndOffset | null;
-	private _globalEvent: ScrollEvent;
-
-	// the start offset in pixels
-	start: Start;
-	end: End;
-
-	private timelines: PublicTimeline[];
-	private _rmEvent: () => void;
+export default class ScrollTimeline {
 	private _initialized: boolean;
+	private _globalEvent: ScrollEvent;
+	private _rmEvent: () => void;
 
-	constructor(props = {}) {
-		// { target, offset }
-		this._start = parseStart(takeProp(props, 'start', null));
-		// { target, offset }
-		this._end = parseEnd(takeProp(props, 'end', null));
-		this._globalEvent = ScrollEvent.global();
+	private _triggers: ParsedScrollTrigger[];
+	private timelines: PublicTimeline[];
+	offsets: ScrollOffset[];
 
-		this.start = {
-			// px
-			y: 0,
-			// percentage
-			view: this._start.view,
-		};
-		this.end = {
-			// px
-			y: 0,
-			// percentage
-			view: this._end?.view ?? 1,
-		};
-
-		this.timelines = [];
-
-		this._rmEvent = this._globalEvent.add(y => this._onScroll(y)).remove;
+	constructor() {
 		this._initialized = false;
+		this._globalEvent = ScrollEvent.global();
+		this._rmEvent = this._globalEvent.add(y => this._onScroll(y)).remove;
+
+		this._triggers = [];
+		this.timelines = [];
+		this.offsets = [];
+
+		// this.timeline = timeline;
+		// this._triggers = triggers.map(parseTrigger);
+		// this.offsets = this._triggers.map(t => {
+		// 	return {
+		// 		y: 0,
+		// 		view: t.view,
+		// 	};
+		// });
+
+		// if (this.offsets.length < 2)
+		// 	throw new Error('scroll timeline needs at least two triggers');
+	}
+
+	/**
+	 * Add a trigger to the timeline
+	 *
+	 * Providing an offset at which point the trigger should end
+	 *
+	 * If it is the first trigger it is not allowed to be set?
+	 */
+	add(trigger: ScrollTrigger, position?: Position) {
+		this._triggers.push(
+			parseTrigger(trigger, position, this._triggers.length),
+		);
 	}
 
 	addTimeline(timeline: PublicTimeline) {
@@ -111,15 +121,52 @@ export default class Scroll {
 	}
 
 	init() {
-		const startOffset = pageOffset(this._start.target);
-		this.start.y =
-			startOffset.top + startOffset.height * this._start.offset;
+		// todo we need to calculate the position for each timeline
+		//
+		// calculate the positions and offsets
+		// if we are missing one extend them
 
-		if (this._end) {
-			const offset = pageOffset(this._end.target);
-			this.end.y = offset.top + offset.height * this._end.offset;
-		} else {
-			this.end.y = this.start.y + pageOffset(this._start.target).height;
+		let previousY = -1;
+
+		this.offsets = this._triggers.map(t => {
+			const offset = pageOffset(t.target);
+
+			const y = offset.top + offset.height * t.offset;
+
+			if (y < previousY) throw new Error('offsets are not in order');
+
+			let position;
+			if (typeof t.position === 'string') {
+				if (this.timelines.length !== 1)
+					throw new Error(
+						'labels can only be used with one timeline',
+					);
+
+				position = this.timelines[0].labelPosition(t.position);
+			} else if (t.position >= 0 || t.position <= 1) {
+				position = t.position;
+			} else {
+				throw new Error('position should be between 0 and 1');
+			}
+
+			return {
+				y,
+				view: t.view,
+				position,
+			};
+		});
+
+		if (this.offsets.length < 1)
+			throw new Error('scroll timeline needs at least one trigger');
+
+		if (this.offsets.length === 1) {
+			this.offsets.push({
+				y:
+					this.offsets[0].y +
+					pageOffset(this._triggers[0].target).height,
+				view: 1,
+				position: 1,
+			});
 		}
 	}
 
@@ -129,14 +176,25 @@ export default class Scroll {
 			this._initialized = true;
 		}
 
-		const start = this.start.y + height * this.start.view;
-		const end = this.end.y + height * this.end.view;
+		// find the matching offset
+		// rolling window
+		for (let i = 1; i < this.offsets.length; i++) {
+			const start = this.offsets[i - 1];
+			const end = this.offsets[i];
 
-		const dif = end - start;
-		const x = 1 - (end - y) / dif;
+			const startY = start.y + height * start.view;
+			const endY = end.y + height * end.view;
 
-		for (const timeline of this.timelines) {
-			timeline.seek(x);
+			const dif = endY - startY;
+			const x = 1 - (endY - y) / dif;
+
+			for (const timeline of this.timelines) {
+				// calc pos range
+				const pos =
+					start.position + (end.position - start.position) * x;
+
+				timeline.seek(pos);
+			}
 		}
 	}
 }
@@ -149,17 +207,19 @@ export default class Scroll {
  * the default offset is top
  * the default view is top
  */
-function parseStart(val: any): StartEndOffset {
+function parseTrigger(
+	val: ScrollTrigger,
+	position: Position | undefined,
+	i: number,
+): ParsedScrollTrigger {
 	// might be an object { target, offset }
 	if (!val) {
-		throw new Error(
-			'unknown start property use an html element or an object',
-		);
+		throw new Error('unknown property use an html element or an object');
 	}
 
 	let element = null;
-	let offset = 'top';
-	let view = 'top';
+	let offset: OffsetValue = 'top';
+	let view: OffsetValue = i == 0 ? 'top' : 'bottom';
 
 	if (typeof val === 'object') {
 		if (val instanceof HTMLElement) {
@@ -179,42 +239,7 @@ function parseStart(val: any): StartEndOffset {
 		target: element,
 		offset: parseOffset(offset),
 		view: parseOffset(view),
-	};
-}
-
-/**
- * Parse the end property
- *
- * can be an HTMLElement or an object { target, offset, view }
- *
- * the default offset is top
- * the default view is bottom
- */
-function parseEnd(val: any): StartEndOffset | null {
-	// might be an object { target, offset }
-	if (!val) return null;
-
-	let element = null;
-	let offset = 'top';
-	let view = 'bottom';
-
-	if (typeof val === 'object') {
-		if (val instanceof HTMLElement) element = val;
-		else if ('target' in val) {
-			element = val.target;
-			if (typeof val.offset !== 'undefined') offset = val.offset;
-			if (typeof val.view !== 'undefined') view = val.view;
-		} else {
-			throw new Error('start unknown ' + val);
-		}
-	} else {
-		throw new Error('unknown start val');
-	}
-
-	return {
-		target: element,
-		offset: parseOffset(offset),
-		view: parseOffset(view),
+		position: position ?? (i == 0 ? 0 : 1),
 	};
 }
 
@@ -227,12 +252,10 @@ function parseEnd(val: any): StartEndOffset | null {
  * 0.5 = center
  * 1 = bottom
  */
-function parseOffset(val: any): number {
+function parseOffset(val: OffsetValue): number {
 	if (typeof val === 'string') {
 		if (val === 'top') return 0;
-
 		if (val === 'center') return 0.5;
-
 		if (val === 'bottom') return 1;
 
 		throw new Error('unknown view value ' + val);

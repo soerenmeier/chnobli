@@ -1,6 +1,5 @@
 import Animation, { AnimationProps } from './animation/public.js';
 import Timeline from './timeline/public.js';
-import Scroll from './scroll/public.js';
 import Stagger, { type StaggerValue } from './stagger/stagger.js';
 import type { Targets, AnimationTarget } from './target/Target.js';
 
@@ -8,7 +7,6 @@ export type {
 	Animation,
 	Timeline,
 	Stagger,
-	Scroll,
 	Targets,
 	AnimationTarget,
 	StaggerValue,
@@ -36,13 +34,6 @@ export function timeline(props: Record<string, any> = {}): Timeline {
 
 export function stagger<O>(value: StaggerValue<O>): Stagger<O> {
 	return new Stagger(value);
-}
-
-/**
- * Create a scroll animation
- */
-export function scroll(props: Record<string, any> = {}): Scroll {
-	return new Scroll(props);
 }
 
 /*

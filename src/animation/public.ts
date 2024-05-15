@@ -1,11 +1,11 @@
 import { takeProp } from '../utils/internal.js';
 import Timeline from '../timeline/public.js';
-import { StaggerValue, staggerMap } from '../stagger/stagger.js';
-import { Targets } from 'src/chnobli.js';
+import Stagger, { staggerMap } from '../stagger/stagger.js';
+import { Targets } from '../chnobli.js';
 
 export type AnimationProps = {
 	autoplay?: boolean;
-	delay?: number | string | StaggerValue<number | string>;
+	delay?: number | string | Stagger<number | string>;
 
 	ease?: (t: number) => number;
 

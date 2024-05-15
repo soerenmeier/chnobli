@@ -65,6 +65,7 @@ export default class PublicTimeline {
 	private _responsiveBlocks: { responsive: () => void }[];
 	private _responsiveEvent: any;
 	private _smoothSeek: SmoothSeek | null;
+	private _seekTo: number;
 
 	constructor(props: TimelineProps = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
@@ -78,6 +79,7 @@ export default class PublicTimeline {
 		this._smoothSeek = parseSmoothSeek(
 			takeProp<SmoothSeekValue>(props, 'smoothSeek', undefined),
 		);
+		this._seekTo = 0;
 
 		this._inner = new Timeline(props);
 
@@ -229,12 +231,22 @@ export default class PublicTimeline {
 
 			if (this._state !== STATE_PLAYING) this._state = STATE_SEEK;
 		} else {
-			this._inner.seek(pos);
+			// this._inner.seek(pos);
+			this._seekTo = pos;
 
 			if (this._state !== STATE_PLAYING) this._state = STATE_RENDER_ONCE;
 		}
 
 		this._startTicker();
+	}
+
+	/**
+	 * Returns the position of a label
+	 */
+	labelPosition(label: string): number {
+		this._inner.init();
+
+		return this._inner.labelPosition(label);
 	}
 
 	// seek in Range (useful for scroll timelines)
@@ -370,7 +382,7 @@ export default class PublicTimeline {
 				return;
 			}
 
-			if (this._state === STATE_PLAYING && !this._triggeredStart) {
+			if (!this._triggeredStart) {
 				// todo check that we are at the start
 				if (this._inner.timing.state <= STATE_BEFORE) {
 					this._events.trigger('start');
@@ -399,6 +411,8 @@ export default class PublicTimeline {
 			) {
 				this._smoothSeek.advance(change);
 				this._inner.seek(this._smoothSeek.value);
+			} else if (this._state === STATE_RENDER_ONCE) {
+				this._inner.seek(this._seekTo);
 			} else if (this._state === STATE_PLAYING) {
 				this._inner.advance(change);
 			}
@@ -468,7 +482,7 @@ export function timelineAdd(
 			nProps[prop] = callStagger(nProps[prop], i, targets.length);
 		}
 
-		const nOffset = callStagger(offset, i);
+		const nOffset = callStagger(offset, i, targets.length);
 
 		tl._inner.add(target, nProps, nOffset, i);
 	}

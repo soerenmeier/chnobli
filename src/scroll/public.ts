@@ -1,20 +1,31 @@
-import PublicTimeline from '../timeline/public.js';
-import Scroll from './Scroll.js';
+import { Timeline } from '../chnobli.js';
+// import Scroll from './Scroll.js';
+import ScrollTimeline, { Position, ScrollTrigger } from './Scroll.js';
 
-export default class PublicScroll {
-	private _inner: Scroll;
+export default class Scroll {
+	private _inner: ScrollTimeline;
 
-	/*
-	{
-		start: el | px
-		startView: 'top'
-	}
-	*/
-	constructor(props: Record<string, any> = {}) {
-		this._inner = new Scroll(props);
+	constructor() {
+		this._inner = new ScrollTimeline();
 	}
 
-	add(timeline: PublicTimeline) {
+	/**
+	 * Add a trigger to the timeline
+	 *
+	 * Providing an offset at which point the trigger should end
+	 */
+	add(trigger: ScrollTrigger, position?: Position): this {
+		this._inner.add(trigger, position);
+
+		return this;
+	}
+
+	/**
+	 * Add a timeline to the scroll
+	 */
+	addTimeline(timeline: Timeline): this {
 		this._inner.addTimeline(timeline);
+
+		return this;
 	}
 }

@@ -26,6 +26,10 @@
 			"import": "./dist/utils/utils.js",
 			"types": "./dist/utils/utils.d.ts"
 		},
+		"./scroll": {
+			"import": "./dist/scroll/index.js",
+			"types": "./dist/scroll/index.d.ts"
+		},
 		".": {
 			"import": "./dist/chnobli.js",
 			"types": "./dist/chnobli.d.ts"
