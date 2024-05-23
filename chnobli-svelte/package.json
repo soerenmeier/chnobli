@@ -1,6 +1,6 @@
 {
 	"name": "chnobli-svelte",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"author": "Sören Meier <info@soerenmeier.ch>",
 	"type": "module",
 	"scripts": {
@@ -10,7 +10,7 @@
 		"watch": "svelte-package -i ./src -w"
 	},
 	"exports": {
-		"./": {
+		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		}
