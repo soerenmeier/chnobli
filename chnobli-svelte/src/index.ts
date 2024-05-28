@@ -15,15 +15,20 @@ export function createTransition<A extends undefined>(
 
 	onDestroy(() => {
 		tl?.destroy();
+		tl = undefined;
 	});
 
 	return (node: HTMLElement, args: any, opts: any) => {
-		console.log('create Transition');
 		tl = fn(node, args);
+
+		if (!tl) return { duration: 0 };
+
 		tl._inner.init();
 
-		const forward = (t: number) => tl!.seek(t);
-		const backward = (_t: any, t: number) => tl!.seek(t);
+		// weirdly it happens that onDestroy is called but then forward
+		// or backward is called again
+		const forward = (t: number) => tl?.seek(t);
+		const backward = (_t: any, t: number) => tl?.seek(t);
 
 		return {
 			duration: tl._inner.timing.duration,
