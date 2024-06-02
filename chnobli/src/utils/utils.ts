@@ -1,4 +1,3 @@
-import { Callback } from '../responsive/ResponsiveEvent.js';
 import { curve } from './motionpath.js';
 
 export { curve };

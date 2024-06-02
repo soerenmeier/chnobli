@@ -67,9 +67,8 @@ describe('usecases', () => {
 
 	it('accordion2', () => {
 		const ticker = new TestTicker();
-		const respEv = new TestResponsiveEvent();
+		const _respEv = new TestResponsiveEvent();
 
-		const itm = el();
 		const ctn = el();
 		ctn.computedStyle.maxHeight = 'none';
 		// @ts-ignore

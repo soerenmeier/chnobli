@@ -29,7 +29,7 @@ export default class Events {
 	}
 
 	trigger(event: string, ...args: any[]) {
-		let list = this.listeners.get(event);
+		const list = this.listeners.get(event);
 		if (!list) return;
 		list.trigger(...args);
 	}

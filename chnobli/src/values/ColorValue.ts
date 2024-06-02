@@ -134,6 +134,7 @@ function parseHsl(hsl: string): RGBA {
 
 /// expects [h, s, l, a]
 function hslToRgba(hsla: HSLA): RGBA {
+	// eslint-disable-next-line prefer-const
 	let [h, s, l, a] = hsla;
 
 	// normalize

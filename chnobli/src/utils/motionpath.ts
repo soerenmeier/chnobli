@@ -7,10 +7,10 @@ function catmullRom(
 	p1Tension: number,
 	p2Tension: number,
 ) {
-	let v0 = (p2 - p0) * p1Tension;
-	let v1 = (p3 - p1) * p2Tension;
-	let t2 = t * t;
-	let t3 = t2 * t;
+	const v0 = (p2 - p0) * p1Tension;
+	const v1 = (p3 - p1) * p2Tension;
+	const t2 = t * t;
+	const t3 = t2 * t;
 
 	return (
 		(2 * p1 - 2 * p2 + v0 + v1) * t3 +
@@ -40,7 +40,7 @@ export function curve(
 ): (t: number) => { x: number; y: number } {
 	if (points.length <= 1) throw new Error('curve expects at least 2 points');
 
-	let startEndStraight = opts.startEndStraight ?? true;
+	const startEndStraight = opts.startEndStraight ?? true;
 	if (startEndStraight) {
 		points[0].straight = true;
 		points[points.length - 1].straight = true;

@@ -33,30 +33,30 @@ export default class ObjectTarget implements Target {
 		return 'object';
 	}
 
-	getValue(name: string): Value | null {
+	getValue(_name: string): Value | null {
 		// return this.values.get(name) ?? null;
 		throw new Error('not supported');
 	}
 
-	setValue(name: string, value: Value) {
+	setValue(_name: string, _value: Value) {
 		// this.values.set(name, value);
 		throw new Error('not supported');
 	}
 
-	removeValue(name: string) {
+	removeValue(_name: string) {
 		// this.values.delete(name);
 		throw new Error('not supported');
 	}
 
-	getTransformValue(name: string): Value | null {
+	getTransformValue(_name: string): Value | null {
 		throw new Error('not supported');
 	}
 
-	setTransformValue(name: string, value: Value) {
+	setTransformValue(_name: string, _value: Value) {
 		throw new Error('not supported');
 	}
 
-	removeTransformValue(name: string) {
+	removeTransformValue(_name: string) {
 		throw new Error('not supported');
 	}
 
@@ -90,19 +90,19 @@ export default class ObjectTarget implements Target {
 		this.styleValues.set(name, undefined);
 	}
 
-	hasClass(name: string): boolean {
+	hasClass(_name: string): boolean {
 		throw new Error('not supported');
 	}
 
-	addClass(name: string): void {
+	addClass(_name: string): void {
 		throw new Error('not supported');
 	}
 
-	removeClass(name: string): void {
+	removeClass(_name: string): void {
 		throw new Error('not supported');
 	}
 
-	unifyValues(name: string, a: Value, b: Value): [Value, Value] {
+	unifyValues(_name: string, a: Value, b: Value): [Value, Value] {
 		if (a.unit === b.unit) return [a, b];
 
 		if (!a.unit && b.unit) a.unit = b.unit;

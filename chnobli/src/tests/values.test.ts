@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/TestTicker.js';
-import { animate, timeline } from '../chnobli.js';
-import { responsive, from, fromTo } from '../utils/utils.js';
+import { timeline } from '../chnobli.js';
+import { from, fromTo } from '../utils/utils.js';
 import { el, getRootElement } from '../target/TestDomNode.js';
 
 describe('values', () => {
@@ -12,7 +12,7 @@ describe('values', () => {
 		root.computedStyle.fontSize = '13px';
 
 		const div = el();
-		const tl = timeline()
+		const _tl = timeline()
 			.add(div, {
 				width: '10rem',
 				duration: 5,
@@ -35,7 +35,7 @@ describe('values', () => {
 
 		const div = el();
 		div.computedStyle.width = '10px';
-		const tl = timeline()
+		const _tl = timeline()
 			.add(div, {
 				x: '10%',
 				width: '50%',
@@ -62,7 +62,7 @@ describe('values', () => {
 
 		const div = el();
 		div.computedStyle.padding = '5px';
-		const tl = timeline()
+		const _tl = timeline()
 			.add(div, {
 				padding: '10px 20rem',
 				duration: 10,
@@ -81,7 +81,7 @@ describe('values', () => {
 
 		const div = el();
 		div.computedStyle.display = 'block';
-		const tl = timeline()
+		const _tl = timeline()
 			.add(div, {
 				display: 'none',
 				position: from('absolute'),
@@ -100,7 +100,7 @@ describe('values', () => {
 		expect(div.style.position).toBe(undefined);
 		expect(div.style.visibility).toBe('visible');
 
-		tl.seek(-1);
+		_tl.seek(-1);
 		ticker.run();
 		expect(div.style.display).toBe(undefined);
 		expect(div.style.position).toBe(undefined);
@@ -112,7 +112,7 @@ describe('values', () => {
 		const div = el();
 		div.computedStyle.color = 'rgb(120, 130, 20)';
 
-		const tl = timeline()
+		const _tl = timeline()
 			.add(div, {
 				color: 'black',
 				backgroundColor: 'hsl(10, 80%, 40%)',
@@ -139,7 +139,7 @@ describe('values', () => {
 		div.computedStyle['--color'] = 'rgb(120, 130, 20)';
 		div.computedStyle['--border'] = '20px';
 
-		const tl = timeline()
+		const _tl = timeline()
 			.add(div, {
 				'--color': 'black',
 				'--border': '1px 20px',

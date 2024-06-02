@@ -254,7 +254,7 @@ describe('timeline', () => {
 		const ticker = new TestTicker();
 
 		const target = el();
-		const tl = timeline()
+		const _tl = timeline()
 			.add(target, {
 				width: 50,
 				duration: 10,

@@ -77,7 +77,7 @@ export default class ClassProperty implements Property<string[], Interpolated> {
 		 * and in reverse add it at pos 1
 		 */
 
-		let obj: Interpolated = {
+		const obj: Interpolated = {
 			add: [],
 			remove: [],
 		};

@@ -1,5 +1,5 @@
 import Value from '../values/Value.js';
-import Property, { ParseableValue } from './Property.js';
+import Property from './Property.js';
 import { Target } from '../target/Target.js';
 
 export type XYValue = {

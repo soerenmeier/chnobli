@@ -1,5 +1,5 @@
 import ResponsiveEvent from '../responsive/ResponsiveEvent.js';
-import PublicTimeline, { Offset } from '../timeline/public.js';
+import PublicTimeline from '../timeline/public.js';
 import Events from '../utils/Events.js';
 import { pageOffset } from '../utils/utils.js';
 import ScrollEvent from './ScrollEvent.js';
@@ -306,8 +306,8 @@ export default class ScrollTimeline {
 	 * @ignore
 	 */
 	private _onResponsive(
-		a: { width: number; height: number },
-		b: { remove: () => void },
+		_a: { width: number; height: number },
+		_b: { remove: () => void },
 	) {
 		this.update();
 

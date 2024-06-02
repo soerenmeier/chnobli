@@ -185,7 +185,7 @@ export default class Timeline {
 
 			const pos = this.entries[i - 1 - entry.relativeOffset]?.end ?? 0;
 
-			let start = offset.calculate(pos);
+			const start = offset.calculate(pos);
 			if (start < 0) throw new Error('cannot go in the past start < 0');
 
 			let end = start;

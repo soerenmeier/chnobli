@@ -84,7 +84,7 @@ export default class DomTarget implements Target {
 			return;
 		}
 
-		let vals = this.transformValues.get(fn);
+		const vals = this.transformValues.get(fn);
 		if (!vals) return;
 
 		vals[idx] = null;

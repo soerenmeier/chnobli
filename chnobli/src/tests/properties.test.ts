@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/TestTicker.js';
 import TestResponsiveEvent from '../responsive/TestEvent.js';
-import { animate, timeline } from '../chnobli.js';
+import { timeline } from '../chnobli.js';
 import { responsive, curve, fromTo } from '../utils/utils.js';
 import { el } from '../target/TestDomNode.js';
 import { timeout } from 'fire/utils';
@@ -60,7 +60,7 @@ describe('properties', () => {
 		}
 
 		let resolveCleanupProm: any;
-		let cleanupProm = new Promise(
+		const cleanupProm = new Promise(
 			resolve => (resolveCleanupProm = resolve),
 		);
 		const cleanup = new FinalizationRegistry(key => {

@@ -227,7 +227,7 @@ export default class PublicTimeline {
 		this._inner.init();
 
 		if (this._smoothSeek) {
-			this._smoothSeek.update(this._inner.timing.positionLinear(), pos);
+			this._smoothSeek.update(this._inner.timing.positionAbsolute(), pos);
 
 			if (this._state !== STATE_PLAYING) this._state = STATE_SEEK;
 		} else {
@@ -421,8 +421,8 @@ export default class PublicTimeline {
 	 * @ignore
 	 */
 	_onResponsive(
-		a: { width: number; height: number },
-		b: { remove: () => void },
+		_a: { width: number; height: number },
+		_b: { remove: () => void },
 	) {
 		// // make sure we don't render something if we never did
 		// if (!this._renderedOnce)
