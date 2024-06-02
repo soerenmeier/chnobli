@@ -1,5 +1,6 @@
-import { onDestroy } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { Timeline } from 'chnobli';
+import { scroll as newScroll, Scroll } from 'chnobli/scroll';
 
 export type CreateTransition<A extends undefined> = (
 	el: HTMLElement,
@@ -38,4 +39,16 @@ export function createTransition<A extends undefined>(
 			tick: opts.direction === 'out' ? backward : forward,
 		};
 	};
+}
+
+export function scroll(fn: (scroll: Scroll) => void) {
+	let scr = newScroll();
+
+	onMount(() => {
+		fn(scr);
+	});
+
+	onDestroy(() => {
+		scr?.destroy();
+	});
 }
