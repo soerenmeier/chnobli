@@ -1,11 +1,12 @@
 import Animation, { AnimationProps } from './animation/public.js';
-import Timeline from './timeline/public.js';
+import Timeline, { TimelineProps } from './timeline/public.js';
 import Stagger, { type StaggerValue } from './stagger/stagger.js';
 import type { Targets, AnimationTarget } from './target/Target.js';
 
 export type {
 	Animation,
 	Timeline,
+	TimelineProps,
 	Stagger,
 	Targets,
 	AnimationTarget,
@@ -28,7 +29,7 @@ export function animate(
 	return new Animation(targets, props);
 }
 
-export function timeline(props: Record<string, any> = {}): Timeline {
+export function timeline(props: TimelineProps = {}): Timeline {
 	return new Timeline(props);
 }
 

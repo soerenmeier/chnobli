@@ -1,4 +1,4 @@
-const REGEX = /^(\d+\.?\d*|\.\d+)(\w*|%)$/;
+const REGEX = /^(-?\d+\.?\d*|\.\d+)(\w*|%)$/;
 
 export default class Value {
 	num: number;
