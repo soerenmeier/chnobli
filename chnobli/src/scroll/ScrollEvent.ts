@@ -10,6 +10,7 @@ export default class ScrollEvent {
 		this._listeners = new Set();
 
 		window.addEventListener('scroll', e => this._onScroll(e));
+		window.addEventListener('resize', e => this._onScroll(e));
 	}
 
 	static global() {

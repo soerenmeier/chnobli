@@ -1,6 +1,9 @@
 import { Timeline } from '../chnobli.js';
-// import Scroll from './Scroll.js';
-import ScrollTimeline, { Position, ScrollTrigger } from './Scroll.js';
+import ScrollTimeline, {
+	DestroyOptions,
+	Position,
+	ScrollTrigger,
+} from './Scroll.js';
 
 export default class Scroll {
 	private _inner: ScrollTimeline;
@@ -27,5 +30,35 @@ export default class Scroll {
 		this._inner.addTimeline(timeline);
 
 		return this;
+	}
+
+	/**
+	 * Listen on events
+	 *
+	 * returns a function to remove the event listener
+	 *
+	 * ## Events
+	 *
+	 * ### Update
+	 * The scroll position has been updated passes in a number between 0 and 1
+	 *
+	 */
+	on(event: string, fn: (...args: any[]) => void): () => void {
+		return this._inner.on(event, fn);
+	}
+
+	update() {
+		this._inner.update();
+	}
+
+	/**
+	 * Destroy the scroll
+	 */
+	destroy(opts: DestroyOptions = {}) {
+		this._inner.destroy(opts);
+	}
+
+	debug(prefix?: string) {
+		this._inner.debug(prefix);
 	}
 }
