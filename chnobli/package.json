@@ -30,6 +30,10 @@
 			"import": "./dist/scroll/index.js",
 			"types": "./dist/scroll/index.d.ts"
 		},
+		"./animator": {
+			"import": "./dist/animator/index.js",
+			"types": "./dist/animator/index.d.ts"
+		},
 		".": {
 			"import": "./dist/chnobli.js",
 			"types": "./dist/chnobli.d.ts"
