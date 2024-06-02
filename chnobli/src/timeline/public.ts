@@ -393,7 +393,11 @@ export default class PublicTimeline {
 			// we rendered once let's stop
 			const renderOnce = this._state === STATE_RENDER_ONCE;
 
-			if (renderOnce || (timingEnded() && smoothSeekEnded())) {
+			if (
+				renderOnce ||
+				(smoothSeekEnded() &&
+					(this._state === STATE_SEEK || timingEnded()))
+			) {
 				this._maybeTriggerEndEvent();
 
 				this._state = STATE_PAUSED;
