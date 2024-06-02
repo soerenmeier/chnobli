@@ -9,6 +9,7 @@ export default class ObjectTarget implements Target {
 
 	// private transformValues: Map<string, (Value | null)[]>;
 	private styleValues: Map<string, StyleValue | undefined>;
+	private firstValues: Map<string, StyleValue | undefined>;
 	// private values: Map<string, Value>;
 
 	/**
@@ -20,6 +21,7 @@ export default class ObjectTarget implements Target {
 		this.target = target;
 
 		this.styleValues = new Map();
+		this.firstValues = new Map();
 		// this.values = new Map();
 	}
 
@@ -71,6 +73,7 @@ export default class ObjectTarget implements Target {
 		try {
 			const value = StyleValue.parse(styleV);
 			this.styleValues.set(name, value);
+			this.firstValues.set(name, value);
 
 			return value;
 		} catch (e) {
@@ -113,9 +116,12 @@ export default class ObjectTarget implements Target {
 		// style
 		for (const [k, v] of this.styleValues.entries()) {
 			if (v === undefined) {
-				console.log('delete', k);
-				delete this.target[k];
-				this.styleValues.delete(k);
+				const first = this.firstValues.get(k);
+				if (typeof first !== 'undefined') {
+					this.target[k] = first.toMixed();
+				} else {
+					delete this.target[k];
+				}
 			} else {
 				this.target[k] = v.toMixed();
 			}

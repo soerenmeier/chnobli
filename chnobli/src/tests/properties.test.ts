@@ -206,7 +206,7 @@ describe('properties', () => {
 		tl.reverse();
 		tl.play();
 		ticker.run();
-		expect(obj.x).toBe(undefined);
+		expect(obj.x).toBe(0);
 		expect(obj.width).toBe(undefined);
 	});
 
