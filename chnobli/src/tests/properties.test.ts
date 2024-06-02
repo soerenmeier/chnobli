@@ -79,6 +79,47 @@ describe('properties', () => {
 		expect(res).toBe('div');
 	});
 
+	it('keep values', () => {
+		const ticker = new TestTicker();
+
+		const div = el();
+		const tl = timeline()
+			.add(div, {
+				x: 100,
+				duration: 10,
+			})
+			.play();
+
+		ticker.run(5);
+		expect(div.style.transform).toBe(
+			'translate3d(50.000px,0.000px,0.000px)',
+		);
+
+		tl.destroy({ keepValues: true });
+		expect(div.style.transform).toBe(
+			'translate3d(50.000px,0.000px,0.000px)',
+		);
+
+		const tl2 = timeline()
+			.add(div, {
+				x: 100,
+				duration: 10,
+			})
+			.play();
+		expect(div.style.transform).toBe(
+			'translate3d(50.000px,0.000px,0.000px)',
+		);
+
+		ticker.run();
+		expect(div.style.transform).toBe(
+			'translate3d(100.000px,0.000px,0.000px)',
+		);
+		tl2.destroy({ keepValues: true });
+		expect(div.style.transform).toBe(
+			'translate3d(100.000px,0.000px,0.000px)',
+		);
+	});
+
 	it('update timeline', () => {
 		const ticker = new TestTicker();
 		const respEv = new TestResponsiveEvent();

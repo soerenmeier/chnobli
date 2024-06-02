@@ -10,6 +10,7 @@ import Timing, {
 import Ticker from '../timing/Ticker.js';
 import Animation from '../animation/Animation.js';
 import AnimationFrameTicker from '../timing/AnimationFrameTicker.js';
+import { DestroyOptions } from './public.js';
 
 type Entry = {
 	type: 'label' | 'animation' | 'timeline';
@@ -325,17 +326,17 @@ export default class Timeline {
 		this.ticker.applyTargets();
 	}
 
-	destroy() {
+	destroy(opts: DestroyOptions) {
 		for (const entry of this.entries) {
 			if (entry.type === 'timeline') {
-				entry.value.destroy();
+				entry.value.destroy(opts);
 				continue;
 			}
 
 			if (entry.type !== 'animation') continue;
 
 			const animation = entry.value;
-			animation.destroy();
+			animation.destroy(opts);
 		}
 
 		this.entries = [];

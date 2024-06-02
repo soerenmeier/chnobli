@@ -38,11 +38,20 @@ export type TimelineProps = {
 	// alternate
 	// reversed
 
+	/**
+	 * When set will keep all values when destroy is called
+	 */
+	keepValues?: boolean;
+
 	// other properties
 	[key: string]: any;
 };
 
 export type Offset = number | string | Stagger<number | string>;
+
+export type DestroyOptions = {
+	keepValues?: boolean;
+};
 
 export default class PublicTimeline {
 	/**
@@ -60,12 +69,13 @@ export default class PublicTimeline {
 	private _triggeredStart: boolean;
 
 	private _state: number;
-	private _renderedOnce: boolean;
 	private _runningTicker: any;
 	private _responsiveBlocks: { responsive: () => void }[];
 	private _responsiveEvent: any;
 	private _smoothSeek: SmoothSeek | null;
 	private _seekTo: number;
+
+	private _destroyOpts: DestroyOptions;
 
 	constructor(props: TimelineProps = {}) {
 		this._defaults = takeProp(props, 'defaults', {});
@@ -81,6 +91,12 @@ export default class PublicTimeline {
 		);
 		this._seekTo = 0;
 
+		this._destroyOpts = {
+			// we set this to undefined so we can have other default values
+			// for example in chnobli-svelte
+			keepValues: takeProp(props, 'keepValues', undefined),
+		};
+
 		this._inner = new Timeline(props);
 
 		// 'start', 'end'
@@ -88,7 +104,6 @@ export default class PublicTimeline {
 		this._triggeredStart = false;
 
 		this._state = STATE_PAUSED;
-		this._renderedOnce = false;
 		this._runningTicker = null;
 		this._responsiveBlocks = [];
 		if (this._responsive) {
@@ -331,9 +346,11 @@ export default class PublicTimeline {
 	/**
 	 * Destroys this timeline and resets all props
 	 */
-	destroy() {
+	destroy(opts: DestroyOptions = {}) {
+		opts.keepValues = opts.keepValues ?? this._destroyOpts.keepValues;
+
 		this._stopTicker();
-		this._inner.destroy();
+		this._inner.destroy(opts);
 		this._events.destroy();
 		this._responsiveEvent?.remove();
 		this._responsiveBlocks = [];
@@ -424,9 +441,6 @@ export default class PublicTimeline {
 		_a: { width: number; height: number },
 		_b: { remove: () => void },
 	) {
-		// // make sure we don't render something if we never did
-		// if (!this._renderedOnce)
-		// 	return;
 		this._inner.update();
 	}
 }

@@ -7,6 +7,7 @@ import Timing, {
 import Property, { ParseableValue, newProperty } from '../property/Property.js';
 import Ticker from '../timing/Ticker.js';
 import { Target } from '../target/Target.js';
+import { DestroyOptions } from '../timeline/public.js';
 
 export default class Animation {
 	timing: Timing;
@@ -95,9 +96,11 @@ export default class Animation {
 		}
 	}
 
-	destroy() {
-		for (const prop of this._props) {
-			prop.restoreBefore(this.target);
+	destroy(opts: DestroyOptions) {
+		if (!opts.keepValues) {
+			for (const prop of this._props) {
+				prop.restoreBefore(this.target);
+			}
 		}
 
 		this._ticker.unregisterTarget(this.target.inner());
