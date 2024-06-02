@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import TestTicker from '../timing/TestTicker.js';
 import TestResponsiveEvent from '../responsive/TestEvent.js';
-import { animate, timeline } from '../chnobli.js';
-import { responsive } from '../utils/utils.js';
+import { timeline } from '../chnobli.js';
+import { fromTo, responsive } from '../utils/utils.js';
 import { el } from '../target/TestDomNode.js';
 
 describe('usecases', () => {
@@ -63,5 +63,44 @@ describe('usecases', () => {
 		ticker.run();
 		expect(ctn.style.maxHeight).toBe(undefined);
 		expect(itm.classList.contains('open')).toBe(false);
+	});
+
+	it('accordion2', () => {
+		const ticker = new TestTicker();
+		const respEv = new TestResponsiveEvent();
+
+		const itm = el();
+		const ctn = el();
+		ctn.computedStyle.maxHeight = 'none';
+		// @ts-ignore
+		ctn.scrollHeight = '100px';
+
+		const tl = timeline({ reversed: true }).add(ctn, {
+			height: fromTo(
+				0,
+				responsive(el => el.scrollHeight),
+			),
+			duration: 100,
+		});
+
+		const toggle = () => {
+			tl.reverse();
+			tl.play();
+		};
+
+		// on click reverse or not
+		toggle();
+		ticker.run(1);
+		expect(ctn.style.height).toBe('1.000px');
+		ticker.run(49);
+		expect(ctn.style.height).toBe('50.000px');
+		toggle();
+		ticker.run(1);
+		expect(ctn.style.height).toBe('49.000px');
+		ticker.run(29);
+		expect(ctn.style.height).toBe('20.000px');
+		toggle();
+		ticker.run(1);
+		expect(ctn.style.height).toBe('21.000px');
 	});
 });

@@ -150,6 +150,7 @@ describe('timing', () => {
 		timing.reverse();
 		expect(timing.state).toBe(STATE_BEFORE);
 		expect(timing.position).toBe(0);
+		expect(timing.positionAbsolute()).toBe(0);
 
 		// >
 		timing.advance(25);
@@ -269,5 +270,36 @@ describe('timing', () => {
 		// <>
 		timing.advance(50);
 		expect(timing.position).toBe(0.25);
+	});
+
+	it('forward and back', () => {
+		const timing = new Timing({
+			duration: 100,
+			reversed: true,
+		});
+		// I wan't the start value to be 0
+		timing.seek(1);
+		expect(timing.reversed).toBe(true);
+		expect(timing.state).toBe(STATE_ENDED);
+		expect(timing.position).toBe(0);
+
+		timing.reverse();
+		expect(timing.state).toBe(STATE_START);
+		timing.advance(25);
+		expect(timing.reversed).toBe(false);
+		expect(timing.state).toBe(STATE_RUNNING);
+		expect(timing.position).toBe(0.25);
+
+		timing.reverse();
+		timing.advance(20);
+		expect(timing.reversed).toBe(true);
+		expect(timing.state).toBe(STATE_RUNNING);
+		expect(timing.position.toFixed(2)).toBe('0.05');
+
+		timing.reverse();
+		timing.advance(20);
+		expect(timing.reversed).toBe(false);
+		expect(timing.state).toBe(STATE_RUNNING);
+		expect(timing.position.toFixed(2)).toBe('0.25');
 	});
 });
