@@ -360,7 +360,7 @@ export default class PublicTimeline {
 		const smoothSeekEnded = () =>
 			!this._smoothSeek || this._smoothSeek.state >= STATE_ENDED;
 
-		this._runningTicker = this._inner.ticker.add(change => {
+		this._runningTicker = this._inner.ticker.add((change, api) => {
 			if (!this._triggeredStart) {
 				// todo check that we are at the start
 				if (this._inner.timing.state <= STATE_BEFORE) {
@@ -385,6 +385,10 @@ export default class PublicTimeline {
 			}
 
 			this._inner.render();
+			const pos = this._inner.timing.position;
+			api.onApplied(() => {
+				this._events.trigger('update', pos);
+			});
 
 			// we rendered once let's stop
 			const renderOnce = this._state === STATE_RENDER_ONCE;

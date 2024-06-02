@@ -91,15 +91,20 @@ export default class AnimationFrameTicker implements Ticker {
 		this._previousTick = elapsed;
 
 		// const changes = new PropertyChanges;
+		const onApplied: (() => void)[] = [];
 
 		for (const fn of this._listeners) {
 			fn(change, {
-				// changes,
 				remove: () => this.remove(fn),
+				onApplied: fnOnApplied => onApplied.push(fnOnApplied),
 			});
 		}
 
 		this._targets.apply();
+
+		for (const fn of onApplied) {
+			fn();
+		}
 
 		requestAnimationFrame(a => this._tick(a));
 	}

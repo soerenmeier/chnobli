@@ -1,6 +1,10 @@
 import { Target } from '../target/Target.js';
 
-export type Callback = (change: number, api: { remove: () => void }) => void;
+export type CallbackApi = {
+	remove: () => void;
+	onApplied: (fn: () => void) => void;
+};
+export type Callback = (change: number, api: CallbackApi) => void;
 
 export default interface Ticker {
 	registerTarget(target: any): Target;

@@ -1,5 +1,5 @@
 import { GlobalTargets } from './AnimationFrameTicker.js';
-import Ticker, { Callback } from './Ticker.js';
+import Ticker, { Callback, CallbackApi } from './Ticker.js';
 
 export default class TestTicker implements Ticker {
 	private _listeners: Set<Callback>;
@@ -81,14 +81,20 @@ export default class TestTicker implements Ticker {
 		}
 		this._previousTick = elapsed;
 
+		const onApplied: (() => void)[] = [];
+
 		for (const fn of this._listeners) {
 			fn(change, {
-				// changes,
 				remove: () => this.remove(fn),
+				onApplied: fn => onApplied.push(fn),
 			});
 		}
 
 		this.targets.apply();
+
+		for (const fn of onApplied) {
+			fn();
+		}
 
 		if (this._listeners.size === 0) {
 			this.running = false;
