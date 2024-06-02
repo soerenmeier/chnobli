@@ -100,15 +100,6 @@ export function words(
  * get the offset to the current page page
  */
 export function pageOffset(el: HTMLElement) {
-	if ('offsetTop' in el) {
-		return {
-			top: el.offsetTop,
-			left: el.offsetLeft,
-			width: el.offsetWidth,
-			height: el.offsetHeight,
-		};
-	}
-
 	const rect = (el as HTMLElement).getBoundingClientRect();
 	return {
 		top: window.scrollY + rect.top,
