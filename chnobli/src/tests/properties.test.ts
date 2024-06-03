@@ -271,4 +271,45 @@ describe('properties', () => {
 		ticker.run();
 		expect(div.style.width).toBe(undefined);
 	});
+
+	it('restore before', () => {
+		const ticker = new TestTicker();
+
+		const div = el();
+		const tl = timeline().add(div, {
+			x: 100,
+			duration: 10,
+		});
+
+		tl.seek(0.95);
+
+		ticker.run();
+		expect(div.style.transform).toBe(
+			'translate3d(95.000px,0.000px,0.000px)',
+		);
+
+		const tl2 = timeline().add(div, {
+			x: 100,
+			duration: 10,
+		});
+		tl2._inner.init();
+
+		ticker.run();
+		expect(div.style.transform).toBe(
+			'translate3d(95.000px,0.000px,0.000px)',
+		);
+
+		const tl3 = timeline()
+			.add(
+				{ opacity: 0 },
+				{
+					opacity: 1,
+				},
+			)
+			.play();
+		ticker.run();
+		expect(div.style.transform).toBe(
+			'translate3d(95.000px,0.000px,0.000px)',
+		);
+	});
 });
